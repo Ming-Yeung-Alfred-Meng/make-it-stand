@@ -20,5 +20,5 @@ void angle_defect(
     }
   }
 
-  D =  Eigen::VectorXd::Constant(V.rows(), 2 * acos(-1.0)) - D;
+  D = Eigen::VectorXd::Constant(V.rows(), 2 * acos(-1.0)) - D;
 }
