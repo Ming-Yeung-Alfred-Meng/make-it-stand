@@ -11,14 +11,11 @@ find_package(LIBIGL REQUIRED)
 
 # Add your project files
 include_directories("include/")
-if(USE_SOLUTION)
-  file(GLOB SRCFILES solution/*.cpp)
-else()
-  file(GLOB SRCFILES src/*.cpp)
-endif()
+
+file(GLOB SRCFILES src/*.cpp)
 
 add_library(core ${SRCFILES})
 target_link_libraries(core igl::core igl::opengl igl::opengl_glfw )
 
-add_executable(curvature "main.cpp")
-target_link_libraries(curvature core igl::core igl::opengl igl::opengl_glfw)
+add_executable(stand "main.cpp")
+target_link_libraries(stand core igl::core igl::opengl igl::opengl_glfw)
