@@ -2,10 +2,12 @@
 #define CURVATURE_CENTER_OF_MASS_H
 #include <Eigen/Core>
 
-// Compute the center of mass of the mesh defined by
-// outer mash (MoV, MoF) and inner mesh (MiV, MiF).
+// Compute the center of mass of the mesh defined
+// collectively by outer mash (MoV, MoF) and inner
+// mesh (MiV, MiF), according the equation 4 of the
+// paper.
 //
-// Input:
+// Inputs:
 //   MoV #V by 3 list of deformed vertex positions
 //   MoF #F by 3 list of face indices into rows of V
 //   MiV #MiV by 3 list of inner mesh vertex positions
