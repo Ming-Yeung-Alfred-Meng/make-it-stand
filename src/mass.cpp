@@ -17,3 +17,17 @@ double mass(
 
   return p * (outer_volume - inner_volume);
 }
+
+
+double mass(
+  const Eigen::MatrixXd &MoV,
+  const Eigen::MatrixXi &MoF,
+  const double p)
+{
+  double volume;
+  Eigen::Vector3d dummy;
+
+  igl::centroid(MoV, MoF, dummy, volume);
+
+  return p * volume;
+}

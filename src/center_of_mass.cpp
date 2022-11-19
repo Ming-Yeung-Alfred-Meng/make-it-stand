@@ -31,7 +31,7 @@ void helper_g(
 // to the center of mass of the mesh defined collectively by the
 // outer and inner mesh.
 //
-// Input:
+// Inputs:
 //   V vertices
 //   F faces
 //
@@ -72,15 +72,30 @@ void center_of_mass(
   const double p,
   Eigen::Vector3d &C)
 {
-  Eigen::Vector3d con;
+  Eigen::Vector3d outer_con;
+  Eigen::Vector3d inner_con;
 
-  C << 0., 0., 0.;
-  face_contribution(MoV, MoF, con);
-  C += con;
-  face_contribution(MiV, MiF, con);
-  C += con;
-  C *= (p / (24 * mass(MoV, MoF, MiV, MiF, p)));
+  face_contribution(MoV, MoF, outer_con);
+  face_contribution(MiV, MiF, inner_con);
+
+  C = (p / (24 * mass(MoV, MoF, MiV, MiF, p))) * (outer_con + inner_con);
 
   // compute mass
-  // compute c according to formular in paper
+  // compute c according to formula in paper
+}
+
+
+void center_of_mass(
+  const Eigen::MatrixXd &MoV,
+  const Eigen::MatrixXi &MoF,
+  const double p,
+  Eigen::Vector3d &C)
+{
+  Eigen::Vector3d con;
+
+  face_contribution(MoV, MoF, con);
+  C = (p / (24 * mass(MoV, MoF, p))) * con;
+
+  // compute mass
+  // compute c according to formula in paper
 }

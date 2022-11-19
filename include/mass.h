@@ -21,4 +21,11 @@ double mass(
   const Eigen::MatrixXd &MiV,
   const Eigen::MatrixXi &MiF,
   const double p);
+
+
+// Version without inner mesh.
+double mass(
+  const Eigen::MatrixXd &MoV,
+  const Eigen::MatrixXi &MoF,
+  const double p);
 #endif //CURVATURE_MASS_H

@@ -24,4 +24,12 @@ void center_of_mass(
   const Eigen::MatrixXi &MiF,
   const double p,
   Eigen::Vector3d &C);
+
+
+// Version without inner mesh.
+void center_of_mass(
+  const Eigen::MatrixXd &MoV,
+  const Eigen::MatrixXi &MoF,
+  const double p,
+  Eigen::Vector3d &C);
 #endif
