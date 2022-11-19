@@ -5,30 +5,38 @@
 #include <igl/opengl/glfw/Viewer.h>
 #include <Eigen/Core>
 #include <igl/winding_number.h>
+#include <igl/grid.h>
 
 
 int main(int argc, char *argv[])
 {
-  Eigen::MatrixXd V(4, 3);
-  V << 0, 0, 0,
-       1, 0, 0,
-       0, 1, 0,
-       1, 0, 1;
+  Eigen::MatrixXd G;
+  Eigen::Vector3i size(3, 3, 3);
 
-  Eigen::MatrixXi F(4, 3);
-  F << 0, 1, 2,
-       0, 2, 3,
-       2, 1, 3,
-       0, 3, 1;
+  igl::grid(size, G);
 
-  Eigen::MatrixXd Q(1, 3);
-  Q << 0.5, 0.5, 0.1;
+  std::cout << "G:\n" << G << std::endl;
 
-  Eigen::MatrixXi W;
-
-  igl::winding_number(V, F, Q, W);
-
-  std::cout << "winding numbers:\n" << W << std::endl;
+//  Eigen::MatrixXd V(4, 3);
+//  V << 0, 0, 0,
+//       1, 0, 0,
+//       0, 1, 0,
+//       1, 0, 1;
+//
+//  Eigen::MatrixXi F(4, 3);
+//  F << 0, 1, 2,
+//       0, 2, 3,
+//       2, 1, 3,
+//       0, 3, 1;
+//
+//  Eigen::MatrixXd Q(1, 3);
+//  Q << 0.5, 0.5, 0.1;
+//
+//  Eigen::MatrixXi W;
+//
+//  igl::winding_number(V, F, Q, W);
+//
+//  std::cout << "winding numbers:\n" << W << std::endl;
 
 //  // Scale for the color axis
 //  double scale = 100.0;
