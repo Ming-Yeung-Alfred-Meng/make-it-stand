@@ -6,16 +6,30 @@
 #include <Eigen/Core>
 #include <igl/winding_number.h>
 #include <igl/grid.h>
+#include <igl/voxel_grid.h>
 
 
 int main(int argc, char *argv[])
 {
-  Eigen::MatrixXd G;
-  Eigen::Vector3i size(3, 3, 3);
+  Eigen::MatrixXd V(8, 3);
+  V << 0, 0, 0,
+       1, 0, 0,
+       0, 1, 0,
+       1, 1, 0,
+       0, 0, 1,
+       1, 0, 1,
+       0, 1, 1,
+       1, 1, 1;
 
-  igl::grid(size, G);
-
-  std::cout << "G:\n" << G << std::endl;
+  Eigen::MatrixXd grid;
+  Eigen::Vector3i side;
+  igl::voxel_grid(V, 0.5, 3, 1, grid, side);
+//  Eigen::MatrixXd G;
+//  Eigen::Vector3i size(3, 3, 3);
+//
+//  igl::grid(size, G);
+//
+//  std::cout << "G:\n" << G << std::endl;
 
 //  Eigen::MatrixXd V(4, 3);
 //  V << 0, 0, 0,

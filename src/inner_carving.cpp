@@ -1,5 +1,5 @@
 #include "inner_carving.h"
-
+#include <igl/voxel_grid.h>
 
 double carving_energy()
 {
@@ -13,8 +13,13 @@ double update_carving_energy()
 }
 
 
-void inner_carving()
+void inner_carving(
+  const Eigen::MatrixXd &MoV,
+  const Eigen::MatrixXi &MoF,
+  Eigen::MatrixXd &MiV,
+  Eigen::MatrixXi &MiF)
 {
+//  igl::voxel_grid(MoV, s, 1, grid, side);
   // initialize an empty voxel grid
   //    using igl::voxel_grid.h
   // initialize center of mass
