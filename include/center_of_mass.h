@@ -7,6 +7,9 @@
 // mesh (MiV, MiF), according the equation 4 of the
 // paper.
 //
+// If MiV and MiF represent an empty inner
+// mesh, select the version accordingly.
+//
 // Inputs:
 //   MoV #V by 3 list of deformed vertex positions
 //   MoF #F by 3 list of face indices into rows of V

@@ -5,6 +5,9 @@
 // Compute the mass of the mesh defined by
 // outer mash (MoV, MoF) and inner mesh (MiV, MiF).
 //
+// If MiV and MiF represent an empty inner
+// mesh, select the version accordingly.
+//
 // Inputs:
 //   MoV #V by 3 list of deformed vertex positions
 //   MoF #F by 3 list of face indices into rows of V
