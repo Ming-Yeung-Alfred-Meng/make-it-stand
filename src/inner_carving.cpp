@@ -47,8 +47,9 @@ double carving_energy(
 void update_center_of_mass(
   const Eigen::MatrixXd &grid,
   const int i,
-  Eigen::Vector3d &CoM,
-  double &mass)
+  const double old_mass,
+  const double new_mass,
+  Eigen::Vector3d &CoM)
 {
   // new CoM = old CoM - (density / 24*m) * contribution of oriented triangular faces
   // equivalently, CoM -= (density / 24*m) * contribution of oriented inner faces
@@ -61,6 +62,14 @@ void update_center_of_mass(
   //    a dot product multiplied by helper_g
   // multiply CoM by (density / 24*m), where m is the new m
 
+
+}
+
+
+
+double update_mass(
+  const double old_mass)
+{
 
 }
 
@@ -117,7 +126,8 @@ void inner_carving(
   igl::voxel_grid(MoV, 0, voxel_scale, 1, grid, side);
 
   Eigen::Vector3d CoM;
-  center_of_mass(MoV, MoF, density, CoM);
+  double mass;
+  center_of_mass(MoV, MoF, density, CoM, mass);
 
   double energy = carving_energy(CoM, contact);
 
@@ -126,6 +136,8 @@ void inner_carving(
 
   std::sort(indices.begin(), indices.end(), generate_comp(grid, contact, CoM));
 
+  double original_mass; // What should I initialize them to?
+  double optimal_mass = mass;
   Eigen::Vector3d original_CoM;
   Eigen::Vector3d optimal_CoM = CoM;
   double original_energy;
@@ -136,15 +148,20 @@ void inner_carving(
   // while "indices" contains indices into grid, "j", "original_j" and "optimal_j" are indices into "indices".
 
   do {
-    original_energy = min_energy;
-    original_CoM = optimal_CoM;
-    original_j = optimal_j;
+    mass = optimal_mass; // may place below or here.
+    original_energy = min_energy; // must be here.
+    original_CoM = optimal_CoM; // may be moved below, but need to be initialized before do-while.
+    CoM = optimal_CoM;
+    original_j = optimal_j; // must be here
 
     while (j < indices.size() && distance_from_plane(grid.row(indices[j]), contact, original_CoM) > 0) {
-      update_center_of_mass(grid, indices[j], CoM);
+      original_mass = mass;
+      mass = update_mass(original_mass);
+      update_center_of_mass(grid, indices[j], original_mass, mass, CoM);
       energy = carving_energy(CoM, contact);
 
       if (energy < min_energy) {
+        optimal_mass = mass;
         optimal_CoM = CoM;
         min_energy = energy;
         optimal_j = j;
@@ -155,6 +172,7 @@ void inner_carving(
 
     assert (j < indices.size() && "The plane is outside the mesh!");
     assert (optimal_j < indices.size() - 1 && "The entire mesh is now hollow!");
+
 
     std::sort(indices.begin() + optimal_j + 1, indices.end(), generate_comp(grid, contact, optimal_CoM));
 

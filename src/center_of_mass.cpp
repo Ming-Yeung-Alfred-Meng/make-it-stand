@@ -45,7 +45,7 @@ void center_of_mass(
   const Eigen::MatrixXi &MoF,
   const Eigen::MatrixXd &MiV,
   const Eigen::MatrixXi &MiF,
-  const double &density,
+  const double density,
   Eigen::Vector3d &CoM,
   double &m)
 {
@@ -66,7 +66,7 @@ void center_of_mass(
 void center_of_mass(
   const Eigen::MatrixXd &MoV,
   const Eigen::MatrixXi &MoF,
-  const double &density,
+  const double density,
   Eigen::Vector3d &CoM,
   double &m)
 {
