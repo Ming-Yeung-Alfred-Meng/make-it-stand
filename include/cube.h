@@ -1,0 +1,4 @@
+#ifndef MAKE_IT_STAND_CUBE_H
+#define MAKE_IT_STAND_CUBE_H
+
+#endif //MAKE_IT_STAND_CUBE_H

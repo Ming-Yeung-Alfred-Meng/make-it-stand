@@ -7,10 +7,58 @@
 #include <igl/winding_number.h>
 #include <igl/grid.h>
 #include <igl/voxel_grid.h>
+#include <cmath>
 
 
 int main(int argc, char *argv[])
 {
+//  std::vector<int> l = {1, 3, 2};
+//
+//  std::sort(l.begin() + 2, l.end());
+//
+//  for (int i : l) {
+//    std::cout << i << ' ';
+//  }
+//
+//  std::cout << std::endl;
+//
+//  std::sort(l.begin() + 7, l.end());
+//
+//  for (int i : l) {
+//    std::cout << i << ' ';
+//  }
+//
+//  std::cout << std::endl;
+//
+//  std::sort(l.begin() + 1, l.end());
+//
+//  for (int i : l) {
+//    std::cout << i << ' ';
+//  }
+
+//  std::cout << std::abs(-0.33) << std::endl;
+
+//  Eigen::RowVector3d v(1, 2, 3);
+//
+//  std::cout << "v.rows(): " << v.rows() << std::endl;
+//  std::cout << "v.cols(): " << v.cols() << std::endl;
+//  std::cout << "v.row(0): " << v.row(0) << std::endl;
+//
+//  Eigen::MatrixXd m(2, 3);
+//  m << 1, 1, 1, 2, 2, 2;
+//
+//  std::cout << "m.row(0).rows(): " << m.row(0).rows() << std::endl;
+//  std::cout << "m.row(0).cols(): " << m.row(0).cols() << std::endl;
+//  std::cout << "v.row(0).row(0): " << v.row(0).row(0) << std::endl;
+//  std::cout << "m(3): " << m(3) << std::endl;
+//
+//  Eigen::VectorXd a;
+//  a.resize(10, 1);
+//
+//  std::cout << "a:\n" << a << std::endl;
+//
+//  double s = 1.-2.*2;
+
   Eigen::MatrixXd V(8, 3);
   V << 0, 0, 0,
        1, 0, 0,
@@ -22,8 +70,10 @@ int main(int argc, char *argv[])
        1, 1, 1;
 
   Eigen::MatrixXd grid;
-  Eigen::Vector3i side;
-  igl::voxel_grid(V, 0.5, 3, 1, grid, side);
+  Eigen::RowVector3i side;
+  igl::voxel_grid(V, 0, 10, 1, grid, side);
+  std::cout << "grid:\n" << grid << std::endl;
+  std::cout << "side:\n" << side << std::endl;
 //  Eigen::MatrixXd G;
 //  Eigen::Vector3i size(3, 3, 3);
 //

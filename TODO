@@ -1,1 +1,2 @@
 // in mass.cpp, what is the behaviour if the inner mesh is empty, I want it to return the mass of solely the outer mesh.
+// fix center_of_mass as it used to assumes faces of MiF are oriented s.t. normals point inward.

@@ -1,25 +1,175 @@
-#include "inner_carving.h"
+#include <algorithm>
+#include <vector>
 #include <igl/voxel_grid.h>
+#include <igl/dual_contouring.h>
+#include "inner_carving.h"
+#include "center_of_mass.h"
+#include "voxel_indices.h"
+#include "isovoxel.h"
+#include "helper_g.h"
 
-double carving_energy()
+
+
+// Compute the E_CoM from paper.
+//
+// For simplicity, assume the negative z-direction
+// is the gravity direction.
+//
+// Inputs:
+//   CoM  center of mass
+//   contact  mesh's point of contact with the ground.
+//            For simplicity, assumed to be the vertex
+//            with the smallest z-value, or is given by user.
+// Return:
+//   E_CoM
+double carving_energy(
+  const Eigen::Vector3d &CoM,
+  const Eigen::Vector3d &contact)
 {
-  return -1;
+  Eigen::Vector3d diff = CoM - contact;
+  return 0.5 * (diff(0) * diff(0) + diff(1) * diff(1));
 }
 
 
-double update_carving_energy()
+// TODO: complete the following:
+// Update the center of mass after carving one voxel.
+// Assumes the old center of mass and mass are valid.
+//
+// Inputs:
+//   grid  #grid by 3 list of voxel centers
+//   i  index into grid of voxel carved
+//   CoM  old center of mass
+//   mass  old mass
+//
+// Output:
+//   CoM  updated center of mass
+//   mass  updated mass
+void update_center_of_mass(
+  const Eigen::MatrixXd &grid,
+  const int i,
+  Eigen::Vector3d &CoM,
+  double &mass)
 {
-  return -1;
+  // new CoM = old CoM - (density / 24*m) * contribution of oriented triangular faces
+  // equivalently, CoM -= (density / 24*m) * contribution of oriented inner faces
+  // CoM += (density / 24*m) * contribution of oppositely oriented inner faces
+
+  // find the corners of the voxel
+  // divide CoM by (density / 24*m)
+  // subtract mass of voxel from m
+  // add contribution of voxel vertices to CoM
+  //    a dot product multiplied by helper_g
+  // multiply CoM by (density / 24*m), where m is the new m
+
+
 }
+
+
+
+// Compute relative distance from grid.row(index) to the plane.
+// Relative because the normal of the plane does not have unit length.
+double distance_from_plane(
+  const Eigen::Vector3d &query,
+  const Eigen::Vector3d &contact,
+  const Eigen::Vector3d &CoM)
+{
+  Eigen::Vector3d normal = CoM - contact;
+  normal(2) = 0;
+//  return (grid.row(index).transpose() - contact).dot(normal);
+  return (query - contact).dot(normal);
+}
+
+
+
+// Return a function that compares the distance from two voxels to a plane.
+// The function returns true iff the first voxel is closer to the plane.
+//
+// Inputs:
+//   grid  #grid by 3 list of voxel centers
+//   contact  3D vector that is on the plane
+//   CoM  3D vector s.t. (CoM - contact) projected on the ground is normal to the plane
+//
+// Output:
+//   comparator
+std::function<bool (int, int)> generate_comp(
+  const Eigen::MatrixXd &grid,
+  const Eigen::Vector3d &contact,
+  const Eigen::Vector3d &CoM)
+{
+  return [&grid, &contact, &CoM](int i, int j) { return distance_from_plane(grid.row(i), contact, CoM) > distance_from_plane(grid.row(j), contact, CoM); };
+}
+
 
 
 void inner_carving(
   const Eigen::MatrixXd &MoV,
   const Eigen::MatrixXi &MoF,
+  const Eigen::Vector3d &contact,
+  const int voxel_scale,
+  const int min_carve,
+  const double thickness,
+  const double density,
   Eigen::MatrixXd &MiV,
   Eigen::MatrixXi &MiF)
 {
-//  igl::voxel_grid(MoV, s, 1, grid, side);
+  Eigen::MatrixXd grid;
+  Eigen::RowVector3i side;
+  igl::voxel_grid(MoV, 0, voxel_scale, 1, grid, side);
+
+  Eigen::Vector3d CoM;
+  center_of_mass(MoV, MoF, density, CoM);
+
+  double energy = carving_energy(CoM, contact);
+
+  std::vector<int> indices;
+  voxel_indices(MoV, MoF, grid, thickness, indices);
+
+  std::sort(indices.begin(), indices.end(), generate_comp(grid, contact, CoM));
+
+  Eigen::Vector3d original_CoM;
+  Eigen::Vector3d optimal_CoM = CoM;
+  double original_energy;
+  double min_energy = energy;
+  int j = 0;
+  int original_j;
+  int optimal_j = 0;
+  // while "indices" contains indices into grid, "j", "original_j" and "optimal_j" are indices into "indices".
+
+  do {
+    original_energy = min_energy;
+    original_CoM = optimal_CoM;
+    original_j = optimal_j;
+
+    while (j < indices.size() && distance_from_plane(grid.row(indices[j]), contact, original_CoM) > 0) {
+      update_center_of_mass(grid, indices[j], CoM);
+      energy = carving_energy(CoM, contact);
+
+      if (energy < min_energy) {
+        optimal_CoM = CoM;
+        min_energy = energy;
+        optimal_j = j;
+      }
+
+      ++j;
+    }
+
+    assert (j < indices.size() && "The plane is outside the mesh!");
+    assert (optimal_j < indices.size() - 1 && "The entire mesh is now hollow!");
+
+    std::sort(indices.begin() + optimal_j + 1, indices.end(), generate_comp(grid, contact, optimal_CoM));
+
+  } while (min_energy < original_energy && optimal_j - original_j > min_carve);
+
+  // TODO: complete the following:
+  int in_out[grid.rows()];
+//  isovoxel(in_out);
+
+  double gradient[grid.rows()];
+//  voxel_gradient(gradient);
+
+//  igl::dual_contouring();
+
+
   // initialize an empty voxel grid
   //    using igl::voxel_grid.h
   // initialize center of mass
@@ -30,7 +180,9 @@ void inner_carving(
   //                  insert filled voxel centers
   //                      priority of voxel centers calculated according to current plane
   // initialize an array of indices of grid point that are within a distance from hull
+  //   filter out indices of voxels not within a distance from the hull
   // sort the array using custom comparator
+  //    sort according the plane defined for this iteration
   // run (first) iteration:
   //    make a copy of the energy
   //    extract indices of filled voxels from the sorted array one by one (second iteration),
@@ -38,8 +190,8 @@ void inner_carving(
   //      fetch corner using the index
   //      update new center of mass
   //      calculate new energy
-  //      keep track of min energy seen so far
-  //      keep track of the iteration where min energy occurred
+  //      keep track of thickness energy seen so far
+  //      keep track of the iteration where thickness energy occurred
   //    end carving (second iteration) when all voxels with positive distance are evaluated
   //    if new energy is greater or equal to the copy of energy or the number of voxels carved is too few,
   //      exit (first iteration)

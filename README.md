@@ -888,3 +888,8 @@ curvature.
 ### `src/principal_curvatures.cpp`
 Approximate principal curvature values and directions locally by considering
 the two-ring neighborhood of each vertex in the mesh (`V`,`F`).
+
+### Naive Assumptions
+The negative z-direction is the gravity direction.\
+The mesh's point of contact with the ground is the vertex with the smallest z-value,
+or is given by user.
