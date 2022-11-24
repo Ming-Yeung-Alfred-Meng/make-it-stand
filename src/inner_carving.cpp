@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cmath>
 #include <vector>
 #include <igl/voxel_grid.h>
 #include <igl/dual_contouring.h>
@@ -7,7 +8,6 @@
 #include "voxel_indices.h"
 #include "isovoxel.h"
 #include "helper_g.h"
-
 
 
 // Compute the E_CoM from paper.
@@ -105,7 +105,54 @@ std::function<bool (int, int)> generate_comp(
   const Eigen::Vector3d &contact,
   const Eigen::Vector3d &CoM)
 {
-  return [&grid, &contact, &CoM](int i, int j) { return distance_from_plane(grid.row(i), contact, CoM) > distance_from_plane(grid.row(j), contact, CoM); };
+  return [&](int i, int j)
+    { return distance_from_plane(grid.row(i), contact, CoM)
+             > distance_from_plane(grid.row(j), contact, CoM);
+    };
+}
+
+
+// Should I pass in the iterators by reference of by value?
+void build_in_out(
+  const std::vector<int>::iterator &begin,
+  const std::vector<int>::iterator &end,
+  const long size,
+  int in_out[])
+{
+  std::fill_n(in_out, size, 1);
+
+  for (std::vector<int>::iterator i = begin; i != end; ++i) {
+    in_out[*i] = -1;
+  }
+}
+
+
+std::function<int (Eigen::Vector3d &)> inside_outside(
+  const int int_out[],
+  const Eigen::Vector3d &min_corner,
+  const Eigen::Vector3d &max_corner,
+  const double step)
+{
+  return [&](Eigen::Vector3d &query)
+    {
+      if (query[0] <= min_corner[0] ||
+          query[1] <= min_corner[1] ||
+          query[2] <= min_corner[2] ||
+          query[0] >= max_corner[0] ||
+          query[1] >= max_corner[2] ||
+          query[2] >= max_corner[1]) {
+        return 1;
+      }
+
+      int x_index = floor((query[0] - min_corner[0]) / step);
+      int y_index = floor((query[1] - min_corner[1]) / step);
+      int z_index = floor((query[2] - min_corner[2]) / step);
+
+      // you need to be able to detect if query is on the surface,
+      // so you need to allow for numerical errors.
+
+      return 1;
+    };
 }
 
 
@@ -173,19 +220,18 @@ void inner_carving(
     assert (j < indices.size() && "The plane is outside the mesh!");
     assert (optimal_j < indices.size() - 1 && "The entire mesh is now hollow!");
 
-
     std::sort(indices.begin() + optimal_j + 1, indices.end(), generate_comp(grid, contact, optimal_CoM));
 
   } while (min_energy < original_energy && optimal_j - original_j > min_carve);
 
+
   // TODO: complete the following:
   int in_out[grid.rows()];
-//  isovoxel(in_out);
+  build_in_out(indices.begin(), indices.begin() + optimal_j, grid.rows(), in_out);
 
-  double gradient[grid.rows()];
-//  voxel_gradient(gradient);
-
-//  igl::dual_contouring();
+  igl::dual_contouring(inside_outside(in_out), [](float a, float b) {
+      return (std::abs(a) < std::abs(b));
+  }, ..);
 
 
   // initialize an empty voxel grid
@@ -222,3 +268,5 @@ void inner_carving(
   // use the index and array of index to construct the -1, 0, 1 inside-outside grid vector
   // use dual_contour to construct inner mesh
 }
+
+
