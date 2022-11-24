@@ -1,0 +1,5 @@
+#ifndef MAKE_IT_STAND_LINEAR_INDEX_H
+#define MAKE_IT_STAND_LINEAR_INDEX_H
+#include <Eigen/Core>
+
+#endif //MAKE_IT_STAND_LINEAR_INDEX_H
