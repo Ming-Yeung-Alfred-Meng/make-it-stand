@@ -2,7 +2,7 @@
 #include "mass.h"
 #include "helper_g.h"
 
-
+// TODO: fix it due to inner mesh's normals point inward
 // Compute the contribution of faces of a (outer or inner) mesh
 // to the center of mass of the mesh defined collectively by the
 // outer and inner mesh.

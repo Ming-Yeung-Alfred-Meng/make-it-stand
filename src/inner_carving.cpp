@@ -8,6 +8,123 @@
 #include "voxel_indices.h"
 #include "isovoxel.h"
 #include "helper_g.h"
+#include "voxel_contouring.h"
+
+
+double carving_energy(const Eigen::Vector3d &CoM, const Eigen::Vector3d &contact);
+void update_center_of_mass(const Eigen::MatrixXd &grid, const int i, const double old_mass, const double new_mass, Eigen::Vector3d &CoM);
+double update_mass(const double old_mass);
+void build_in_out(const std::vector<int>::iterator &begin, const std::vector<int>::iterator &end, const long size, int in_out[]);
+std::function<bool (int, int)> generate_comp(const Eigen::MatrixXd &grid, const Eigen::Vector3d &contact, const Eigen::Vector3d &CoM);
+double distance_from_plane(const Eigen::Vector3d &query, const Eigen::Vector3d &contact, const Eigen::Vector3d &CoM);
+
+
+void inner_carving(
+  const Eigen::MatrixXd &MoV,
+  const Eigen::MatrixXi &MoF,
+  const Eigen::Vector3d &contact,
+  const int voxel_scale,
+  const int min_carve,
+  const double thickness,
+  const double density,
+  Eigen::MatrixXd &MiV,
+  Eigen::MatrixXi &MiF)
+{
+  Eigen::MatrixXd grid;
+  Eigen::RowVector3i side;
+  igl::voxel_grid(MoV, 0, voxel_scale, 1, grid, side);
+
+  Eigen::Vector3d CoM;
+  double mass;
+  center_of_mass(MoV, MoF, density, CoM, mass);
+
+  double energy = carving_energy(CoM, contact);
+
+  std::vector<int> indices;
+  voxel_indices(MoV, MoF, grid, thickness, indices);
+
+  std::sort(indices.begin(), indices.end(), generate_comp(grid, contact, CoM));
+
+  double original_mass; // What should I initialize them to?
+  double optimal_mass = mass;
+  Eigen::Vector3d original_CoM;
+  Eigen::Vector3d optimal_CoM = CoM;
+  double original_energy;
+  double min_energy = energy;
+  int j = 0;
+  int original_j;
+  int optimal_j = 0;
+  // while "indices" contains indices into grid, "j", "original_j" and "optimal_j" are indices into "indices".
+
+  do {
+    mass = optimal_mass; // may place below or here.
+    original_energy = min_energy; // must be here.
+    original_CoM = optimal_CoM; // may be moved below, but need to be initialized before do-while.
+    CoM = optimal_CoM;
+    original_j = optimal_j; // must be here
+
+    while (j < indices.size() && distance_from_plane(grid.row(indices[j]), contact, original_CoM) > 0) {
+      original_mass = mass;
+      mass = update_mass(original_mass);
+      update_center_of_mass(grid, indices[j], original_mass, mass, CoM);
+      energy = carving_energy(CoM, contact);
+
+      if (energy < min_energy) {
+        optimal_mass = mass;
+        optimal_CoM = CoM;
+        min_energy = energy;
+        optimal_j = j;
+      }
+
+      ++j;
+    }
+
+    assert (j < indices.size() && "The plane is outside the mesh!");
+    assert (optimal_j < indices.size() - 1 && "The entire mesh is now hollow!");
+
+    std::sort(indices.begin() + optimal_j + 1, indices.end(), generate_comp(grid, contact, optimal_CoM));
+
+  } while (min_energy < original_energy && optimal_j - original_j > min_carve);
+
+  int in_out[grid.rows()];
+  build_in_out(indices.begin(), indices.begin() + optimal_j, grid.rows(), in_out);
+
+  voxel_contouring(grid, side, in_out, MiV, MiF);
+
+  // initialize an empty voxel grid
+  //    using igl::voxel_grid.h
+  // initialize center of mass
+  //    using center_of_mass for outer mesh only version
+  // initialize energy
+  //                  initialize priority queue
+  //                  rank from largest to smallest distances
+  //                  insert filled voxel centers
+  //                      priority of voxel centers calculated according to current plane
+  // initialize an array of indices of grid point that are within a distance from hull
+  //   filter out indices of voxels not within a distance from the hull
+  // sort the array using custom comparator
+  //    sort according the plane defined for this iteration
+  // run (first) iteration:
+  //    make a copy of the energy
+  //    extract indices of filled voxels from the sorted array one by one (second iteration),
+  //                  insert voxel center into a queue
+  //      fetch corner using the index
+  //      update new center of mass
+  //      calculate new energy
+  //      keep track of thickness energy seen so far
+  //      keep track of the iteration where thickness energy occurred
+  //    end carving (second iteration) when all voxels with positive distance are evaluated
+  //    if new energy is greater or equal to the copy of energy or the number of voxels carved is too few,
+  //      exit (first iteration)
+  //    else,
+  //                        initialize a new
+  //                          extract all voxels that remained filled into a new priority queue
+  //      sort the remaining indices in the array by new comparator based on new center of mass
+  //    currently it is unsure if returning the optimized energy is necessary
+  // use the iteration number where the optimized energy occurred to locate the last carved voxel
+  // use the index and array of index to construct the -1, 0, 1 inside-outside grid vector
+  // use dual_contour to construct inner mesh
+}
 
 
 // Compute the E_CoM from paper.
@@ -127,146 +244,36 @@ void build_in_out(
 }
 
 
-std::function<int (Eigen::Vector3d &)> inside_outside(
-  const int int_out[],
-  const Eigen::Vector3d &min_corner,
-  const Eigen::Vector3d &max_corner,
-  const double step)
-{
-  return [&](Eigen::Vector3d &query)
-    {
-      if (query[0] <= min_corner[0] ||
-          query[1] <= min_corner[1] ||
-          query[2] <= min_corner[2] ||
-          query[0] >= max_corner[0] ||
-          query[1] >= max_corner[2] ||
-          query[2] >= max_corner[1]) {
-        return 1;
-      }
-
-      int x_index = floor((query[0] - min_corner[0]) / step);
-      int y_index = floor((query[1] - min_corner[1]) / step);
-      int z_index = floor((query[2] - min_corner[2]) / step);
-
-      // you need to be able to detect if query is on the surface,
-      // so you need to allow for numerical errors.
-
-      return 1;
-    };
-}
-
-
-
-void inner_carving(
-  const Eigen::MatrixXd &MoV,
-  const Eigen::MatrixXi &MoF,
-  const Eigen::Vector3d &contact,
-  const int voxel_scale,
-  const int min_carve,
-  const double thickness,
-  const double density,
-  Eigen::MatrixXd &MiV,
-  Eigen::MatrixXi &MiF)
-{
-  Eigen::MatrixXd grid;
-  Eigen::RowVector3i side;
-  igl::voxel_grid(MoV, 0, voxel_scale, 1, grid, side);
-
-  Eigen::Vector3d CoM;
-  double mass;
-  center_of_mass(MoV, MoF, density, CoM, mass);
-
-  double energy = carving_energy(CoM, contact);
-
-  std::vector<int> indices;
-  voxel_indices(MoV, MoF, grid, thickness, indices);
-
-  std::sort(indices.begin(), indices.end(), generate_comp(grid, contact, CoM));
-
-  double original_mass; // What should I initialize them to?
-  double optimal_mass = mass;
-  Eigen::Vector3d original_CoM;
-  Eigen::Vector3d optimal_CoM = CoM;
-  double original_energy;
-  double min_energy = energy;
-  int j = 0;
-  int original_j;
-  int optimal_j = 0;
-  // while "indices" contains indices into grid, "j", "original_j" and "optimal_j" are indices into "indices".
-
-  do {
-    mass = optimal_mass; // may place below or here.
-    original_energy = min_energy; // must be here.
-    original_CoM = optimal_CoM; // may be moved below, but need to be initialized before do-while.
-    CoM = optimal_CoM;
-    original_j = optimal_j; // must be here
-
-    while (j < indices.size() && distance_from_plane(grid.row(indices[j]), contact, original_CoM) > 0) {
-      original_mass = mass;
-      mass = update_mass(original_mass);
-      update_center_of_mass(grid, indices[j], original_mass, mass, CoM);
-      energy = carving_energy(CoM, contact);
-
-      if (energy < min_energy) {
-        optimal_mass = mass;
-        optimal_CoM = CoM;
-        min_energy = energy;
-        optimal_j = j;
-      }
-
-      ++j;
-    }
-
-    assert (j < indices.size() && "The plane is outside the mesh!");
-    assert (optimal_j < indices.size() - 1 && "The entire mesh is now hollow!");
-
-    std::sort(indices.begin() + optimal_j + 1, indices.end(), generate_comp(grid, contact, optimal_CoM));
-
-  } while (min_energy < original_energy && optimal_j - original_j > min_carve);
+//std::function<int (Eigen::Vector3d &)> inside_outside(
+//  const int int_out[],
+//  const Eigen::Vector3d &min_corner,
+//  const Eigen::Vector3d &max_corner,
+//  const double step)
+//{
+//  return [&](Eigen::Vector3d &query)
+//    {
+//      if (query[0] <= min_corner[0] ||
+//          query[1] <= min_corner[1] ||
+//          query[2] <= min_corner[2] ||
+//          query[0] >= max_corner[0] ||
+//          query[1] >= max_corner[2] ||
+//          query[2] >= max_corner[1]) {
+//        return 1;
+//      }
+//
+//      int x_index = floor((query[0] - min_corner[0]) / step);
+//      int y_index = floor((query[1] - min_corner[1]) / step);
+//      int z_index = floor((query[2] - min_corner[2]) / step);
+//
+//      // you need to be able to detect if query is on the surface,
+//      // so you need to allow for numerical errors.
+//
+//      return 1;
+//    };
+//}
 
 
-  // TODO: complete the following:
-  int in_out[grid.rows()];
-  build_in_out(indices.begin(), indices.begin() + optimal_j, grid.rows(), in_out);
-
-  igl::dual_contouring(inside_outside(in_out), [](float a, float b) {
-      return (std::abs(a) < std::abs(b));
-  }, ..);
 
 
-  // initialize an empty voxel grid
-  //    using igl::voxel_grid.h
-  // initialize center of mass
-  //    using center_of_mass for outer mesh only version
-  // initialize energy
-  //                  initialize priority queue
-  //                  rank from largest to smallest distances
-  //                  insert filled voxel centers
-  //                      priority of voxel centers calculated according to current plane
-  // initialize an array of indices of grid point that are within a distance from hull
-  //   filter out indices of voxels not within a distance from the hull
-  // sort the array using custom comparator
-  //    sort according the plane defined for this iteration
-  // run (first) iteration:
-  //    make a copy of the energy
-  //    extract indices of filled voxels from the sorted array one by one (second iteration),
-  //                  insert voxel center into a queue
-  //      fetch corner using the index
-  //      update new center of mass
-  //      calculate new energy
-  //      keep track of thickness energy seen so far
-  //      keep track of the iteration where thickness energy occurred
-  //    end carving (second iteration) when all voxels with positive distance are evaluated
-  //    if new energy is greater or equal to the copy of energy or the number of voxels carved is too few,
-  //      exit (first iteration)
-  //    else,
-  //                        initialize a new
-  //                          extract all voxels that remained filled into a new priority queue
-  //      sort the remaining indices in the array by new comparator based on new center of mass
-  //    currently it is unsure if returning the optimized energy is necessary
-  // use the iteration number where the optimized energy occurred to locate the last carved voxel
-  // use the index and array of index to construct the -1, 0, 1 inside-outside grid vector
-  // use dual_contour to construct inner mesh
-}
 
 

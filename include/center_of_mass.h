@@ -5,8 +5,9 @@
 // Compute the center of mass of the mesh defined
 // collectively by outer mash (MoV, MoF) and inner
 // mesh (MiV, MiF), according the equation 4 of the
-// paper. Assumes outer and inner mesh are oriented s.t.
-// normals point outward.
+// paper. Assumes outer and inner mesh are oriented i.e.
+// normals of the outer mesh point outward, and that of
+// the inner mesh point inward.
 //
 // If MiV and MiF represent an empty inner
 // mesh, select the version accordingly.
