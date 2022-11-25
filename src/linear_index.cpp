@@ -1,13 +1,15 @@
 #include "linear_index.h"
 
 
-void linear_index(
+Eigen::Index linear_index(
   const Eigen::RowVector3i &side,
   const int i,
   const int j,
-  const int k,
-  Eigen::Index &n
-  )
+  const int k)
 {
-//  n = i + ;
+  assert(0 <= i && i < side(0));
+  assert(0 <= j && i < side(1));
+  assert(0 <= k && i < side(2));
+
+  return i + j * side(0) + k * side(0) * side(1);
 }

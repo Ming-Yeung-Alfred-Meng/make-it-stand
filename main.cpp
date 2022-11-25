@@ -12,6 +12,19 @@
 
 int main(int argc, char *argv[])
 {
+  std::vector<int> x = {1, 2, 3};
+  Eigen::MatrixXd::Index i;
+
+  std::cout << "i: " << i << std::endl;
+  i = 3 + 1;
+  std::cout << "i: " << i << std::endl;
+  i = 9;
+  std::cout << "i: " << i << std::endl;
+
+  i = 1;
+
+  std::cout << "x[1]: " << x[i] << std::endl;
+
 //  std::vector<int> l = {1, 3, 2};
 //
 //  std::sort(l.begin() + 2, l.end());
@@ -58,22 +71,22 @@ int main(int argc, char *argv[])
 //  std::cout << "a:\n" << a << std::endl;
 //
 //  double s = 1.-2.*2;
-
-  Eigen::MatrixXd V(8, 3);
-  V << 0, 0, 0,
-       1, 0, 0,
-       0, 1, 0,
-       1, 1, 0,
-       0, 0, 1,
-       1, 0, 1,
-       0, 1, 1,
-       1, 1, 1;
-
-  Eigen::MatrixXd grid;
-  Eigen::RowVector3i side;
-  igl::voxel_grid(V, 0, 10, 1, grid, side);
-  std::cout << "grid:\n" << grid << std::endl;
-  std::cout << "side:\n" << side << std::endl;
+//
+//  Eigen::MatrixXd V(8, 3);
+//  V << 0, 0, 0,
+//       1, 0, 0,
+//       0, 1, 0,
+//       1, 1, 0,
+//       0, 0, 1,
+//       1, 0, 1,
+//       0, 1, 1,
+//       1, 1, 1;
+//
+//  Eigen::MatrixXd grid;
+//  Eigen::RowVector3i side;
+//  igl::voxel_grid(V, 0, 10, 1, grid, side);
+//  std::cout << "grid:\n" << grid << std::endl;
+//  std::cout << "side:\n" << side << std::endl;
 //  Eigen::MatrixXd G;
 //  Eigen::Vector3i size(3, 3, 3);
 //
