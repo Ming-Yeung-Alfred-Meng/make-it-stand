@@ -4,15 +4,19 @@
 #include <igl/dual_contouring.h>
 
 void single_direction_quads(
-  const int d,
+  const char d,
   const Eigen::MatrixXd &grid,
   const Eigen::RowVector3i &side,
   const int in_out[],
-  std::unordered_map< std::tuple<int,int,int>, Eigen::MatrixXd::Index, igl::Hash > &gridV2V,
-  Eigen::Matrix<double, Eigen::Dynamic, 3> &quad_V,
+  std::unordered_map<std::tuple<int, int, int>, Eigen::MatrixXd::Index, igl::Hash> &gridV2V,
+  Eigen::MatrixXd &quad_V,
   Eigen::Matrix<long, Eigen::Dynamic, 4> &quad_F,
   Eigen::Index &num_V,
   Eigen::Index &num_F);
+void quad2triF(
+  const Eigen::Matrix<long, Eigen::Dynamic, 4> &quad_F,
+  const Eigen::Index &num_F,
+  Eigen::MatrixXd &F);
 
 
 
@@ -25,60 +29,67 @@ void voxel_contouring(
   Eigen::MatrixXd &F)
 {
   std::unordered_map< std::tuple<int,int,int>, Eigen::MatrixXd::Index, igl::Hash > gridV2V;
-  Eigen::Matrix<double, Eigen::Dynamic, 3> quad_V;
-  typename decltype(quad_V)::Index num_V = 0;
+//  Eigen::Matrix<double, Eigen::Dynamic, 3> quad_V;
+  Eigen::MatrixXd::Index num_V = 0;
   Eigen::Matrix<long, Eigen::Dynamic, 4> quad_F;
   typename decltype(quad_F)::Index num_F = 0;
   Eigen::MatrixXd::Index next_index;
   int u;
 
-  single_direction_quads(0, grid, side, in_out, gridV2V, quad_V, quad_F, num_V, num_F);
-  single_direction_quads(1, grid, side, in_out, gridV2V, quad_V, quad_F, num_V, num_F);
-  single_direction_quads(2, grid, side, in_out, gridV2V, quad_V, quad_F, num_V, num_F);
+  single_direction_quads(0, grid, side, in_out, gridV2V, V, quad_F, num_V, num_F);
+  single_direction_quads(1, grid, side, in_out, gridV2V, V, quad_F, num_V, num_F);
+  single_direction_quads(2, grid, side, in_out, gridV2V, V, quad_F, num_V, num_F);
 
+  V.conservativeResize(num_V, V.cols());
+  quad2triF(quad_F, num_F, F);
   // Truncate quad_V into V using block operations and turn quad_F into F (with a helper function).
 }
 
 
 void single_direction_quads(
-  const int d,
+  const char d,
   const Eigen::MatrixXd &grid,
   const Eigen::RowVector3i &side,
   const int in_out[],
   std::unordered_map< std::tuple<int,int,int>, Eigen::MatrixXd::Index, igl::Hash > &gridV2V,
-  Eigen::Matrix<double, Eigen::Dynamic, 3> &quad_V,
+  Eigen::MatrixXd &quad_V,
   Eigen::Matrix<long, Eigen::Dynamic, 4> &quad_F,
   Eigen::Index &num_V,
   Eigen::Index &num_F)
 {
   Eigen::MatrixXd::Index curr_index;
   Eigen::MatrixXd::Index next_index;
-  double step = grid(0, 1) - grid(0, 0);
+  double half_step = (grid(0, 1) - grid(0, 0)) / 2;
   int u;
 
-  for (int i = 0; i < side((d + 1) % 3); ++i) {
-    for (int j = 0; j < side((d + 2) % 3); ++j) {
-      for (int k = 0; k < side(d); ++k) {
-        if (d == 0) {
-          curr_index = linear_index(side, k, i, j + 1);
-        } else if (d == 1) {
-          curr_index = linear_index(side, j, k, i + 1);
-        } else {
-          curr_index = linear_index(side, i, j, k + 1);
-        }
-        next_index = curr_index + side((d + 1) % 3) * side((d + 2) % 3);
-
+  for (int i = 0; i < side(0) - (1 * (d == 0)); ++i) {
+    for (int j = 0; j < side(1) - (1 * (d == 1)); ++j) {
+      for (int k = 0; k < side(2) - (1 * (d == 2)); ++k) {
+        curr_index = linear_index(side, i, j, k);
+        next_index = linear_index(side, i + (1 * (d == 0)), j + (1 * (d == 1)), k + (1 * (d == 2)));
         if (in_out[curr_index] * in_out[next_index] < 0) {
           u = 0;
           for (int a = 0; a < 2; ++a) {
             for (int b = 0; b < 2; ++b) {
               std::tuple<int, int, int> key_temp;
               if (d == 0) {
-                key_temp = {k + 1, i + a, j + b};
+                if (in_out[curr_index] > 0) {
+                  key_temp = {i + 1, j + a, k + b};
+                } else {
+                  key_temp = {i + 1, j + b, k + a};
+                }
               } else if (d == 1) {
-                key_temp = {j + b, k + 1, i + a};
+                if (in_out[curr_index] > 0) {
+                  key_temp = {i + b, j + 1, k + a};
+                } else {
+                  key_temp = {i + a, j + 1, k + b};
+                }
               } else {
-                key_temp = {i + a, j + b, k + 1};
+                if (in_out[curr_index] > 0) {
+                  key_temp = {i + a, j + b, k + 1};
+                } else {
+                  key_temp = {i + b, j + a, k + 1};
+                }
               }
 
               const std::tuple<int, int, int> key = std::move(key_temp);
@@ -88,10 +99,10 @@ void single_direction_quads(
                 quad_F(num_F, u) = iterator->second;
               } else {
                 if (num_V + 1 >= quad_V.rows()) { quad_V.conservativeResize(2 * num_V + 1, quad_V.cols()); }
-                quad_V.row(num_V) = grid.row(next_index);
-                quad_V(num_V, d) -= step / 2;
-                quad_V(num_V,(d + 1) % 3) += a - step / 2;
-                quad_V(num_V,(d + 2) % 3) += b - step / 2;
+                quad_V.row(num_V) = grid.row(linear_index(side, std::get<0>(key), std::get<1>(key), std::get<2>(key)));
+                quad_V(num_V, 0) -= half_step;
+                quad_V(num_V, 1) -= half_step;
+                quad_V(num_V, 2) -= half_step;
                 gridV2V[key] = num_V;
                 quad_F(num_F, u) = num_V;
                 ++num_V;
@@ -116,3 +127,19 @@ void single_direction_quads(
   // process F, into triangular faces.
 }
 
+
+void quad2triF(
+  const Eigen::Matrix<long, Eigen::Dynamic, 4> &quad_F,
+  const Eigen::Index &num_F,
+  const int orientation,
+  Eigen::MatrixXd &F)
+{
+  // 1:57
+  // loop over each row/quad face in quad_F, bounded by num_F (max index)
+  // for each, add the oriented face indices to F
+  F.resize(2 * num_F, 3);
+
+  for (int i = 0; i < num_F; ++i) {
+
+  }
+}
