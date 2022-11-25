@@ -12,8 +12,12 @@
 
 int main(int argc, char *argv[])
 {
-  char a = 1;
-  std::cout << (a == 2) << std::endl;
+  int a[3];
+  a = {1, 2, 3};
+  std::cout << "a: " << a << std::endl;
+
+//  char a = 1;
+//  std::cout << (a == 2) << std::endl;
 //  Eigen::MatrixXd m;
 //  std::cout << "m.rows() & m.cols(): " << m.rows() << " & " << m.cols() << std::endl;
 //  Eigen::RowVector3d r(1., 2., 3.);

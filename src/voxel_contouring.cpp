@@ -8,15 +8,15 @@ void single_direction_quads(
   const Eigen::MatrixXd &grid,
   const Eigen::RowVector3i &side,
   const int in_out[],
-  std::unordered_map<std::tuple<int, int, int>, Eigen::MatrixXd::Index, igl::Hash> &gridV2V,
+  std::unordered_map<std::tuple<int, int, int>, Eigen::Index, igl::Hash> &gridV2V,
   Eigen::MatrixXd &quad_V,
-  Eigen::Matrix<long, Eigen::Dynamic, 4> &quad_F,
+  Eigen::MatrixXi &quad_F,
   Eigen::Index &num_V,
   Eigen::Index &num_F);
 void quad2triF(
-  const Eigen::Matrix<long, Eigen::Dynamic, 4> &quad_F,
+  const Eigen::MatrixXi &quad_F,
   const Eigen::Index &num_F,
-  Eigen::MatrixXd &F);
+  Eigen::MatrixXi &F);
 
 
 
@@ -26,14 +26,13 @@ void voxel_contouring(
   const Eigen::RowVector3i &side, // is it possible to change this to 3-tuple?
   const int in_out[],
   Eigen::MatrixXd &V,
-  Eigen::MatrixXd &F)
+  Eigen::MatrixXi &F)
 {
-  std::unordered_map< std::tuple<int,int,int>, Eigen::MatrixXd::Index, igl::Hash > gridV2V;
+  std::unordered_map< std::tuple<int,int,int>, Eigen::Index, igl::Hash > gridV2V;
 //  Eigen::Matrix<double, Eigen::Dynamic, 3> quad_V;
-  Eigen::MatrixXd::Index num_V = 0;
-  Eigen::Matrix<long, Eigen::Dynamic, 4> quad_F;
-  typename decltype(quad_F)::Index num_F = 0;
-  Eigen::MatrixXd::Index next_index;
+  Eigen::Index num_V = 0;
+  Eigen::MatrixXi quad_F;
+  Eigen::Index num_F = 0;
   int u;
 
   single_direction_quads(0, grid, side, in_out, gridV2V, V, quad_F, num_V, num_F);
@@ -51,16 +50,19 @@ void single_direction_quads(
   const Eigen::MatrixXd &grid,
   const Eigen::RowVector3i &side,
   const int in_out[],
-  std::unordered_map< std::tuple<int,int,int>, Eigen::MatrixXd::Index, igl::Hash > &gridV2V,
+  std::unordered_map< std::tuple<int,int,int>, Eigen::Index, igl::Hash > &gridV2V,
   Eigen::MatrixXd &quad_V,
-  Eigen::Matrix<long, Eigen::Dynamic, 4> &quad_F,
+  Eigen::MatrixXi &quad_F,
   Eigen::Index &num_V,
   Eigen::Index &num_F)
 {
-  Eigen::MatrixXd::Index curr_index;
-  Eigen::MatrixXd::Index next_index;
+  Eigen::Index curr_index;
+  Eigen::Index next_index;
   double half_step = (grid(0, 1) - grid(0, 0)) / 2;
   int u;
+
+  quad_V.resize(0, 3);
+  quad_F.resize(0, 4);
 
   for (int i = 0; i < side(0) - (1 * (d == 0)); ++i) {
     for (int j = 0; j < side(1) - (1 * (d == 1)); ++j) {
@@ -129,17 +131,37 @@ void single_direction_quads(
 
 
 void quad2triF(
-  const Eigen::Matrix<long, Eigen::Dynamic, 4> &quad_F,
+  const Eigen::MatrixXi &quad_F,
   const Eigen::Index &num_F,
   const int orientation,
-  Eigen::MatrixXd &F)
+  Eigen::MatrixXi &F)
 {
   // 1:57
   // loop over each row/quad face in quad_F, bounded by num_F (max index)
   // for each, add the oriented face indices to F
   F.resize(2 * num_F, 3);
 
-  for (int i = 0; i < num_F; ++i) {
+  Eigen::Index order1[3];
+  Eigen::Index order2[3];
 
+  if (orientation == 0) {
+    order1[0] = 1;
+    order1[1] = 2;
+    order1[2] = 3;
+    order2[0] = 2;
+    order2[1] = 4;
+    order2[2] = 3;
+  } else {
+    order1[0] = 1;
+    order1[1] = 3;
+    order1[2] = 2;
+    order2[0] = 2;
+    order2[1] = 3;
+    order2[2] = 4;
+  }
+
+  for (int i = 0; i < num_F; ++i) {
+      F.row(2 * i) << quad_F(i, order1[0]), quad_F(i, order1[1]), quad_F(i, order1[2]);
+      F.row(2 * i + 1) << quad_F(i, order2[0]), quad_F(i, order2[1]), quad_F(i, order2[2]);
   }
 }
