@@ -12,18 +12,25 @@
 
 int main(int argc, char *argv[])
 {
-  std::vector<int> x = {1, 2, 3};
-  Eigen::MatrixXd::Index i;
+  Eigen::RowVector3d r(1., 2., 3.);
+  Eigen::MatrixXd m(3, 3);
+  m << r;
 
-  std::cout << "i: " << i << std::endl;
-  i = 3 + 1;
-  std::cout << "i: " << i << std::endl;
-  i = 9;
-  std::cout << "i: " << i << std::endl;
-
-  i = 1;
-
-  std::cout << "x[1]: " << x[i] << std::endl;
+  std::cout << "m:\n" << m << std::endl;
+//  Eigen::Matrix2Xd m;
+//  std::cout << "m.rows():\n" << m.rows() << std::endl;
+//  std::vector<int> x = {1, 2, 3};
+//  Eigen::MatrixXd::Index i;
+//
+//  std::cout << "i: " << i << std::endl;
+//  i = 3 + 1;
+//  std::cout << "i: " << i << std::endl;
+//  i = 9;
+//  std::cout << "i: " << i << std::endl;
+//
+//  i = 1;
+//
+//  std::cout << "x[1]: " << x[i] << std::endl;
 
 //  std::vector<int> l = {1, 3, 2};
 //
