@@ -14,8 +14,8 @@
 
 
 double carving_energy(const Eigen::Vector3d &CoM, const Eigen::Vector3d &contact);
-void update_center_of_mass(const Eigen::MatrixXd &grid, const int i, const double old_mass, const double new_mass, Eigen::Vector3d &CoM);
-double update_mass(const double old_mass, const double density);
+void update_center_of_mass(const Eigen::Vector3d &center, const double length, const double old_mass, const double new_mass, const double density, Eigen::Vector3d &CoM);
+double reduce_mass_by_a_voxel(const double old_mass, const double density, const double length);
 void build_in_out(const std::vector<int>::iterator &begin, const std::vector<int>::iterator &end, const long size, int in_out[]);
 std::function<bool (int, int)> generate_comp(const Eigen::MatrixXd &grid, const Eigen::Vector3d &contact, const Eigen::Vector3d &CoM);
 double distance_from_plane(const Eigen::Vector3d &query, const Eigen::Vector3d &contact, const Eigen::Vector3d &CoM);
@@ -35,6 +35,7 @@ void inner_carving(
   Eigen::MatrixXd grid;
   Eigen::RowVector3i side;
   igl::voxel_grid(MoV, 0, voxel_scale, 1, grid, side);
+  const double length = grid(1, 0) - grid(0, 0);
 
   Eigen::Vector3d CoM;
   double mass;
@@ -67,8 +68,9 @@ void inner_carving(
 
     while (j < indices.size() && distance_from_plane(grid.row(indices[j]), contact, original_CoM) > 0) {
       original_mass = mass;
-      mass = update_mass(original_mass, density);
-      update_center_of_mass(grid, indices[j], original_mass, mass, CoM);
+
+      mass = reduce_mass_by_a_voxel(original_mass, density, length);
+      update_center_of_mass(grid.row(indices[j]), length, original_mass, mass, density, CoM);
       energy = carving_energy(CoM, contact);
 
       if (energy < min_energy) {
@@ -77,7 +79,6 @@ void inner_carving(
         min_energy = energy;
         optimal_j = j;
       }
-
       ++j;
     }
 
@@ -117,20 +118,21 @@ double carving_energy(
 
 
 // Update the center of mass after carving one voxel.
-// Assumes the old center of mass and mass are valid.
+// Assumes the center of mass, CoM, passed into the
+// function is valid.
 //
 // Inputs:
-//   grid  #grid by 3 list of voxel centers
-//   i  index into grid of voxel carved
-//   CoM  old center of mass
-//   mass  old mass
+//   center  3D position of the voxel's center
+//   length  length of each side of the (regular) voxel
+//   old_mass  mass of the mesh before carving the voxel
+//   new_mass  mass of the mesh after carving the voxel
+//   density  density of the mesh
 //
 // Output:
 //   CoM  updated center of mass
-//   mass  updated mass
 void update_center_of_mass(
-  const Eigen::MatrixXd &grid,
-  const int i,
+  const Eigen::Vector3d &center,
+  const double length,
   const double old_mass,
   const double new_mass,
   const double density,
@@ -138,7 +140,7 @@ void update_center_of_mass(
 {
   Eigen::MatrixXd voxel_V;
   Eigen::MatrixXi voxel_F;
-  cube(grid.row(i), grid(1, 0) - grid(0, 0), voxel_V, voxel_F);
+  cube(center, length, voxel_V, voxel_F);
 
   CoM *= (24 * old_mass) / density;
 
@@ -151,11 +153,12 @@ void update_center_of_mass(
 
 
 
-double update_mass(
+double reduce_mass_by_a_voxel(
   const double old_mass,
-  const double density)
+  const double density,
+  const double length)
 {
-
+  return old_mass - length * length * length * density;
 }
 
 
