@@ -1,5 +1,7 @@
 #include "mass.h"
-#include <igl/centroid.h>
+
+double face_contribution_to_mass(const Eigen::MatrixXd &V, const Eigen::MatrixXi &F);
+
 
 double mass(
   const Eigen::MatrixXd &MoV,
@@ -8,14 +10,7 @@ double mass(
   const Eigen::MatrixXi &MiF,
   const double density)
 {
-  double outer_volume;
-  double inner_volume;
-  Eigen::Vector3d dummy;
-
-  igl::centroid(MoV, MoF, dummy, outer_volume);
-  igl::centroid(MiV, MiF, dummy, outer_volume);
-
-  return density * (outer_volume - inner_volume);
+  return (face_contribution_to_mass(MoV, MoF) + face_contribution_to_mass(MiV, MiF)) * density / 6;
 }
 
 
@@ -24,10 +19,21 @@ double mass(
   const Eigen::MatrixXi &MoF,
   const double density)
 {
-  double volume;
-  Eigen::Vector3d dummy;
+  return face_contribution_to_mass(MoV, MoF) * density / 6;
+}
 
-  igl::centroid(MoV, MoF, dummy, volume);
 
-  return density * volume;
+double face_contribution_to_mass(
+  const Eigen::MatrixXd &V,
+  const Eigen::MatrixXi &F)
+{
+  double mass = 0;
+  for (int i = 0; i < F.rows(); ++i) {
+    mass += ((V.row(F(i, 1)) - V.row(F(i, 0))).cross(
+      V.row(F(i, 2)) - V.row(F(i, 0)))).dot(V.row(F(i, 0))
+                                                                                   + V.row(F(i, 1))
+                                                                                   + V.row(F(i, 2)));
+  }
+
+  return mass;
 }

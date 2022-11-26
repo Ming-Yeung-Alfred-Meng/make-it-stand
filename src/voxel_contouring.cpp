@@ -56,6 +56,8 @@ void single_direction_quads(
   Eigen::Index &num_V,
   Eigen::Index &num_F)
 {
+  assert(d == 0 || d == 1 || d == 2);
+
   Eigen::Index curr_index;
   Eigen::Index next_index;
   double half_step = (grid(0, 1) - grid(0, 0)) / 2;
