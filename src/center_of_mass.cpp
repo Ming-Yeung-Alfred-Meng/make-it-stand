@@ -56,7 +56,7 @@ void center_of_mass(
   face_contribution(MoV, MoF, outer_con);
   face_contribution(MiV, MiF, inner_con);
 
-  CoM = (density / (24 * m)) * (outer_con - inner_con);
+  CoM = (density / (24 * m)) * (outer_con + inner_con);
 
   // compute mass
   // compute c according to formula in paper
