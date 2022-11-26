@@ -1,44 +1,7 @@
 #include "center_of_mass.h"
 #include "mass.h"
 #include "helper_g.h"
-
-// TODO: fix it due to inner mesh's normals point inward
-// Compute the contribution of faces of a (outer or inner) mesh
-// to the center of mass of the mesh defined collectively by the
-// outer and inner mesh.
-//
-// Inputs:
-//   V vertices
-//   F faces
-//
-// Output:
-//   con contribution
-//
-void face_contribution(
-  const Eigen::MatrixXd &V,
-  const Eigen::MatrixXi &F,
-  Eigen::Vector3d &con)
-{
-  Eigen::Vector3d vi;
-  Eigen::Vector3d vj;
-  Eigen::Vector3d vk;
-  Eigen::Vector3d g;
-
-  con << 0., 0., 0.;
-  for (int i = 0; i < F.rows(); ++i) {
-    vi = V.row(F(i, 0));
-    vj = V.row(F(i, 1));
-    vk = V.row(F(i, 2));
-    helper_g(vi, vj, vk, g);
-    con += ((vj - vi).cross(vk - vi).array() * g.array()).matrix();
-  }
-
-  // loop through each face
-  //    fetch each vertex of the face from V
-  //    compute contribution
-  //    add it to con
-}
-
+#include "face_contribution_to_com.h"
 
 void center_of_mass(
   const Eigen::MatrixXd &MoV,
@@ -53,13 +16,10 @@ void center_of_mass(
   Eigen::Vector3d inner_con;
   m = mass(MoV, MoF, MiV, MiF, density);
 
-  face_contribution(MoV, MoF, outer_con);
-  face_contribution(MiV, MiF, inner_con);
+  face_contribution_to_com(MoV, MoF, outer_con);
+  face_contribution_to_com(MiV, MiF, inner_con);
 
   CoM = (density / (24 * m)) * (outer_con + inner_con);
-
-  // compute mass
-  // compute c according to formula in paper
 }
 
 
@@ -73,9 +33,6 @@ void center_of_mass(
   Eigen::Vector3d con;
   m = mass(MoV, MoF, density);
 
-  face_contribution(MoV, MoF, con);
+  face_contribution_to_com(MoV, MoF, con);
   CoM = (density / (24 * m)) * con;
-
-  // compute mass
-  // compute c according to formula in paper
 }

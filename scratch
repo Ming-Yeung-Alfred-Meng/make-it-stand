@@ -1,0 +1,88 @@
+  inner_carving.cpp
+  // initialize an empty voxel grid
+  //    using igl::voxel_grid.h
+  // initialize center of mass
+  //    using center_of_mass for outer mesh only version
+  // initialize energy
+  //                  initialize priority queue
+  //                  rank from largest to smallest distances
+  //                  insert filled voxel centers
+  //                      priority of voxel centers calculated according to current plane
+  // initialize an array of indices of grid point that are within a distance from hull
+  //   filter out indices of voxels not within a distance from the hull
+  // sort the array using custom comparator
+  //    sort according the plane defined for this iteration
+  // run (first) iteration:
+  //    make a copy of the energy
+  //    extract indices of filled voxels from the sorted array one by one (second iteration),
+  //                  insert voxel center into a queue
+  //      fetch corner using the index
+  //      update new center of mass
+  //      calculate new energy
+  //      keep track of thickness energy seen so far
+  //      keep track of the iteration where thickness energy occurred
+  //    end carving (second iteration) when all voxels with positive distance are evaluated
+  //    if new energy is greater or equal to the copy of energy or the number of voxels carved is too few,
+  //      exit (first iteration)
+  //    else,
+  //                        initialize a new
+  //                          extract all voxels that remained filled into a new priority queue
+  //      sort the remaining indices in the array by new comparator based on new center of mass
+  //    currently it is unsure if returning the optimized energy is necessary
+  // use the iteration number where the optimized energy occurred to locate the last carved voxel
+  // use the index and array of index to construct the -1, 0, 1 inside-outside grid vector
+  // use dual_contour to construct inner mesh
+
+
+  //std::function<int (Eigen::Vector3d &)> inside_outside(
+  //  const int int_out[],
+  //  const Eigen::Vector3d &min_corner,
+  //  const Eigen::Vector3d &max_corner,
+  //  const double step)
+  //{
+  //  return [&](Eigen::Vector3d &query)
+  //    {
+  //      if (query[0] <= min_corner[0] ||
+  //          query[1] <= min_corner[1] ||
+  //          query[2] <= min_corner[2] ||
+  //          query[0] >= max_corner[0] ||
+  //          query[1] >= max_corner[2] ||
+  //          query[2] >= max_corner[1]) {
+  //        return 1;
+  //      }
+  //
+  //      int x_index = floor((query[0] - min_corner[0]) / step);
+  //      int y_index = floor((query[1] - min_corner[1]) / step);
+  //      int z_index = floor((query[2] - min_corner[2]) / step);
+  //
+  //      // you need to be able to detect if query is on the surface,
+  //      // so you need to allow for numerical errors.
+  //
+  //      return 1;
+  //    };
+  //}
+
+
+  update_center_of_mass()
+  // new CoM = old CoM - (density / 24*m) * contribution of oriented triangular faces
+  // equivalently, CoM -= (density / 24*m) * contribution of oriented inner faces
+  // CoM += (density / 24*m) * contribution of oppositely oriented inner faces
+
+  // find the corners of the voxel
+  // divide CoM by (density / 24*m)
+  // subtract mass of voxel from m
+  // add contribution of voxel vertices to CoM
+  //    a dot product multiplied by helper_g
+  // multiply CoM by (density / 24*m), where m is the new m
+
+  // construct the mesh of the voxel using cube.cpp
+  // divide CoM by (density / 24*old_mass)
+  // minus contribution of the oriented faces of the voxel mesh
+  // multiply CoM by (density / 24*new_m)
+
+
+face_contribution_to_com()
+  // loop through each face
+  //    fetch each vertex of the face from V
+  //    compute contribution
+  //    add it to con

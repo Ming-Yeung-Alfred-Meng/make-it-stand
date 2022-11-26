@@ -11,8 +11,8 @@
 //           in_out[i] = -1 if the it is inside.
 //
 // Outputs:
-//   V  #V by 3 3D positions of the voxel-like mesh
-//   F  #F by 3 indices into V. Each row defines an oriented face.
+//   V  #V by 3 list of vertex positions
+//   F  #F by 3 list of oriented face indices into rows of V
 //
 void voxel_contouring(
   const Eigen::MatrixXd &grid,

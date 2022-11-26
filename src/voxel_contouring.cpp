@@ -60,7 +60,7 @@ void single_direction_quads(
 
   Eigen::Index curr_index;
   Eigen::Index next_index;
-  double half_step = (grid(0, 1) - grid(0, 0)) / 2;
+  double half_step = (grid(1, 0) - grid(0, 0)) / 2;
   int u;
 
   quad_V.resize(0, 3);

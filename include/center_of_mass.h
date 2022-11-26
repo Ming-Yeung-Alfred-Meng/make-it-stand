@@ -13,8 +13,8 @@
 // mesh, select the version accordingly.
 //
 // Inputs:
-//   MoV  #V by 3 list of deformed vertex positions
-//   MoF  #F by 3 list of face indices into rows of V
+//   MoV  #MoV by 3 list of deformed vertex positions
+//   MoF  #MoF by 3 list of face indices into rows of V
 //   MiV  #MiV by 3 list of inner mesh vertex positions
 //   MiF  #MiF by 3 list of inner mesh face indices into rows of MiV
 //   density  uniform mass density of the mesh

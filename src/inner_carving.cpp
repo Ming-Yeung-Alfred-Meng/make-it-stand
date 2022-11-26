@@ -9,11 +9,13 @@
 #include "isovoxel.h"
 #include "helper_g.h"
 #include "voxel_contouring.h"
+#include "cube.h"
+#include "face_contribution_to_com.h"
 
 
 double carving_energy(const Eigen::Vector3d &CoM, const Eigen::Vector3d &contact);
 void update_center_of_mass(const Eigen::MatrixXd &grid, const int i, const double old_mass, const double new_mass, Eigen::Vector3d &CoM);
-double update_mass(const double old_mass);
+double update_mass(const double old_mass, const double density);
 void build_in_out(const std::vector<int>::iterator &begin, const std::vector<int>::iterator &end, const long size, int in_out[]);
 std::function<bool (int, int)> generate_comp(const Eigen::MatrixXd &grid, const Eigen::Vector3d &contact, const Eigen::Vector3d &CoM);
 double distance_from_plane(const Eigen::Vector3d &query, const Eigen::Vector3d &contact, const Eigen::Vector3d &CoM);
@@ -65,7 +67,7 @@ void inner_carving(
 
     while (j < indices.size() && distance_from_plane(grid.row(indices[j]), contact, original_CoM) > 0) {
       original_mass = mass;
-      mass = update_mass(original_mass);
+      mass = update_mass(original_mass, density);
       update_center_of_mass(grid, indices[j], original_mass, mass, CoM);
       energy = carving_energy(CoM, contact);
 
@@ -90,40 +92,6 @@ void inner_carving(
   build_in_out(indices.begin(), indices.begin() + optimal_j, grid.rows(), in_out);
 
   voxel_contouring(grid, side, in_out, MiV, MiF);
-
-  // initialize an empty voxel grid
-  //    using igl::voxel_grid.h
-  // initialize center of mass
-  //    using center_of_mass for outer mesh only version
-  // initialize energy
-  //                  initialize priority queue
-  //                  rank from largest to smallest distances
-  //                  insert filled voxel centers
-  //                      priority of voxel centers calculated according to current plane
-  // initialize an array of indices of grid point that are within a distance from hull
-  //   filter out indices of voxels not within a distance from the hull
-  // sort the array using custom comparator
-  //    sort according the plane defined for this iteration
-  // run (first) iteration:
-  //    make a copy of the energy
-  //    extract indices of filled voxels from the sorted array one by one (second iteration),
-  //                  insert voxel center into a queue
-  //      fetch corner using the index
-  //      update new center of mass
-  //      calculate new energy
-  //      keep track of thickness energy seen so far
-  //      keep track of the iteration where thickness energy occurred
-  //    end carving (second iteration) when all voxels with positive distance are evaluated
-  //    if new energy is greater or equal to the copy of energy or the number of voxels carved is too few,
-  //      exit (first iteration)
-  //    else,
-  //                        initialize a new
-  //                          extract all voxels that remained filled into a new priority queue
-  //      sort the remaining indices in the array by new comparator based on new center of mass
-  //    currently it is unsure if returning the optimized energy is necessary
-  // use the iteration number where the optimized energy occurred to locate the last carved voxel
-  // use the index and array of index to construct the -1, 0, 1 inside-outside grid vector
-  // use dual_contour to construct inner mesh
 }
 
 
@@ -148,7 +116,6 @@ double carving_energy(
 }
 
 
-// TODO: complete the following:
 // Update the center of mass after carving one voxel.
 // Assumes the old center of mass and mass are valid.
 //
@@ -166,26 +133,27 @@ void update_center_of_mass(
   const int i,
   const double old_mass,
   const double new_mass,
+  const double density,
   Eigen::Vector3d &CoM)
 {
-  // new CoM = old CoM - (density / 24*m) * contribution of oriented triangular faces
-  // equivalently, CoM -= (density / 24*m) * contribution of oriented inner faces
-  // CoM += (density / 24*m) * contribution of oppositely oriented inner faces
+  Eigen::MatrixXd voxel_V;
+  Eigen::MatrixXi voxel_F;
+  cube(grid.row(i), grid(1, 0) - grid(0, 0), voxel_V, voxel_F);
 
-  // find the corners of the voxel
-  // divide CoM by (density / 24*m)
-  // subtract mass of voxel from m
-  // add contribution of voxel vertices to CoM
-  //    a dot product multiplied by helper_g
-  // multiply CoM by (density / 24*m), where m is the new m
+  CoM *= (24 * old_mass) / density;
 
+  Eigen::Vector3d con;
+  face_contribution_to_com(voxel_V, voxel_F, con);
+  CoM -= con;
 
+  CoM *= density / (24 * new_mass);
 }
 
 
 
 double update_mass(
-  const double old_mass)
+  const double old_mass,
+  const double density)
 {
 
 }
@@ -242,38 +210,3 @@ void build_in_out(
     in_out[*i] = -1;
   }
 }
-
-
-//std::function<int (Eigen::Vector3d &)> inside_outside(
-//  const int int_out[],
-//  const Eigen::Vector3d &min_corner,
-//  const Eigen::Vector3d &max_corner,
-//  const double step)
-//{
-//  return [&](Eigen::Vector3d &query)
-//    {
-//      if (query[0] <= min_corner[0] ||
-//          query[1] <= min_corner[1] ||
-//          query[2] <= min_corner[2] ||
-//          query[0] >= max_corner[0] ||
-//          query[1] >= max_corner[2] ||
-//          query[2] >= max_corner[1]) {
-//        return 1;
-//      }
-//
-//      int x_index = floor((query[0] - min_corner[0]) / step);
-//      int y_index = floor((query[1] - min_corner[1]) / step);
-//      int z_index = floor((query[2] - min_corner[2]) / step);
-//
-//      // you need to be able to detect if query is on the surface,
-//      // so you need to allow for numerical errors.
-//
-//      return 1;
-//    };
-//}
-
-
-
-
-
-
