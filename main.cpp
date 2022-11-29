@@ -18,7 +18,11 @@ struct State
 {
     // Rest and transformed control points
     Eigen::MatrixXd CV, CU;
-    bool placing_handles = true;
+    Eigen::Index contact;
+    // 0: placing handle
+    // 1: choosing contact point
+    // 2: running algorithm
+    int state = 0;
 } s;
 
 int main(int argc, char *argv[])
@@ -92,12 +96,17 @@ R,r      Reset control points
       const Eigen::RowVector3d yellow(1.0,0.9,0.2);
       const Eigen::RowVector3d blue(0.2,0.3,0.8);
       const Eigen::RowVector3d green(0.2,0.6,0.3);
-      if(s.placing_handles)
+      if(s.state == 0)
       {
         viewer.data().set_vertices(V);
         viewer.data().set_colors(blue);
         viewer.data().set_points(s.CV,orange);
-      }else
+      }
+      else if (s.state == 1)
+      {
+
+      }
+      else
       {
         // SOLVE FOR DEFORMATION
         switch(method)
@@ -129,45 +138,43 @@ R,r      Reset control points
     {
         last_mouse = Eigen::RowVector3f(
           viewer.current_mouse_x,viewer.core().viewport(3)-viewer.current_mouse_y,0);
-        if(s.placing_handles)
-        {
+        if(s.state == 0) {
           // Find closest point on mesh to mouse position
           int fid;
           Eigen::Vector3f bary;
-          if(igl::unproject_onto_mesh(
+          if (igl::unproject_onto_mesh(
             last_mouse.head(2),
             viewer.core().view,
             viewer.core().proj,
             viewer.core().viewport,
             V, F,
-            fid, bary))
-          {
+            fid, bary)) {
             long c;
             bary.maxCoeff(&c);
-            Eigen::RowVector3d new_c = V.row(F(fid,c));
-            if(s.CV.size()==0 || (s.CV.rowwise()-new_c).rowwise().norm().minCoeff() > 0)
-            {
+            Eigen::RowVector3d new_c = V.row(F(fid, c));
+            if (s.CV.size() == 0 || (s.CV.rowwise() - new_c).rowwise().norm().minCoeff() > 0) {
               push_undo();
-              s.CV.conservativeResize(s.CV.rows()+1,3);
+              s.CV.conservativeResize(s.CV.rows() + 1, 3);
               // Snap to closest vertex on hit face
-              s.CV.row(s.CV.rows()-1) = new_c;
+              s.CV.row(s.CV.rows() - 1) = new_c;
               update();
               return true;
             }
           }
-        }else
-        {
-          // Move closest control point
+        } else {
           Eigen::MatrixXf CP;
           igl::project(
             Eigen::MatrixXf(s.CU.cast<float>()),
             viewer.core().view,
             viewer.core().proj, viewer.core().viewport, CP);
-          Eigen::VectorXf D = (CP.rowwise()-last_mouse).rowwise().norm();
-          sel = (D.minCoeff(&sel) < 30)?sel:-1;
-          if(sel != -1)
-          {
-            last_mouse(2) = CP(sel,2);
+          Eigen::VectorXf D = (CP.rowwise() - last_mouse).rowwise().norm();
+          sel = (D.minCoeff(&sel) < 30) ? sel : -1;
+          if (sel != -1) {
+            if (s.state == 1) {
+              s.contact = sel;
+            } else {
+              last_mouse(2) = CP(sel, 2);
+            }
             push_undo();
             update();
             return true;
@@ -241,8 +248,11 @@ R,r      Reset control points
           }
           case ' ':
             push_undo();
-            s.placing_handles ^= 1;
-            if(!s.placing_handles && s.CV.rows()>0)
+            s.state = (s.state + 1) % 3;
+            if (s.state == 1) {
+
+            }
+            else if (s.state == 2 && s.CV.rows()>0)
             {
               // Switching to deformation mode
               s.CU = s.CV;
@@ -275,7 +285,7 @@ R,r      Reset control points
   viewer.callback_pre_draw =
     [&](igl::opengl::glfw::Viewer &)->bool
     {
-        if(viewer.core().is_animating && !s.placing_handles && method == ARAP)
+        if(viewer.core().is_animating && s.state == 2 && method == ARAP)
         {
           arap_single_iteration(arap_data,arap_K,s.CU,U);
           update();
