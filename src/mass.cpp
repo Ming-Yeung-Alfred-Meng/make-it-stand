@@ -1,4 +1,5 @@
 #include "mass.h"
+#include "iostream"
 
 double face_contribution_to_mass(const Eigen::MatrixXd &V, const Eigen::MatrixXi &F);
 
@@ -27,12 +28,18 @@ double face_contribution_to_mass(
   const Eigen::MatrixXd &V,
   const Eigen::MatrixXi &F)
 {
+  Eigen::Vector3d vi;
+  Eigen::Vector3d vj;
+  Eigen::Vector3d vk;
   double mass = 0;
+
   for (int i = 0; i < F.rows(); ++i) {
-    mass += ((V.row(F(i, 1)) - V.row(F(i, 0))).cross(
-      V.row(F(i, 2)) - V.row(F(i, 0)))).dot(V.row(F(i, 0))
-                                                                                   + V.row(F(i, 1))
-                                                                                   + V.row(F(i, 2)));
+    vi = V.row(F(i, 0));
+    vj = V.row(F(i, 1));
+    vk = V.row(F(i, 2));
+    mass += (vj - vi).cross(vk - vi)(0) * (vi + vj + vk)(0);
+//    mass += (vj - vi).cross(vk - vi).normalized()(0) * (vi + vj + vk)(0); // not this
+//    mass += (vj - vi).cross(vk - vi).normalized().dot((vi + vj + vk)); // not this
   }
 
   return mass;

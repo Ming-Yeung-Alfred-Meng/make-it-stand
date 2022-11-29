@@ -18,6 +18,6 @@ void face_contribution_to_com(
     vj = V.row(F(i, 1));
     vk = V.row(F(i, 2));
     helper_g(vi, vj, vk, g);
-    con += ((vj - vi).cross(vk - vi).array() * g.array()).matrix();
+    con += (((vj - vi).cross(vk - vi)).array() * g.array()).matrix();
   }
 }

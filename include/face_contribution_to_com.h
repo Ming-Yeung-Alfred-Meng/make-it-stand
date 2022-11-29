@@ -1,6 +1,7 @@
 #ifndef MAKE_IT_STAND_FACE_CONTRIBUTION_TO_COM_H
 #define MAKE_IT_STAND_FACE_CONTRIBUTION_TO_COM_H
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 // Compute the contribution of faces of a (outer or inner) mesh
 // to the center of mass of the mesh defined collectively by the

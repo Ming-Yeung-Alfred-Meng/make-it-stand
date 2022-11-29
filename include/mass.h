@@ -1,6 +1,7 @@
 #ifndef CURVATURE_MASS_H
 #define CURVATURE_MASS_H
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 // Compute the mass of the mesh defined by
 // outer mash (MoV, MoF) and inner mesh (MiV, MiF).

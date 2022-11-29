@@ -16,6 +16,7 @@ void single_direction_quads(
 void quad2triF(
   const Eigen::MatrixXi &quad_F,
   const Eigen::Index &num_F,
+  const int orientation,
   Eigen::MatrixXi &F);
 
 
@@ -40,7 +41,7 @@ void voxel_contouring(
   single_direction_quads(2, grid, side, in_out, gridV2V, V, quad_F, num_V, num_F);
 
   V.conservativeResize(num_V, V.cols());
-  quad2triF(quad_F, num_F, F);
+  quad2triF(quad_F, num_F, 1, F);
   // Truncate quad_V into V using block operations and turn quad_F into F (with a helper function).
 }
 
@@ -131,7 +132,7 @@ void single_direction_quads(
   // process F, into triangular faces.
 }
 
-
+// orientation = 0 is outward normals
 void quad2triF(
   const Eigen::MatrixXi &quad_F,
   const Eigen::Index &num_F,
