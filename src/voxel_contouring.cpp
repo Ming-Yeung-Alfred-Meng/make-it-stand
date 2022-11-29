@@ -99,8 +99,8 @@ void single_direction_quads(
 
               const std::tuple<int, int, int> key = std::move(key_temp);
               const auto iterator = gridV2V.find(key);
+              if (num_F + 1 >= quad_F.rows()) { quad_F.conservativeResize(2 * num_F + 1, quad_F.cols()); }
               if (iterator != gridV2V.end()) {
-                if (num_F + 1 >= quad_F.rows()) { quad_F.conservativeResize(2 * num_F + 1, quad_F.cols()); }
                 quad_F(num_F, u) = iterator->second;
               } else {
                 if (num_V + 1 >= quad_V.rows()) { quad_V.conservativeResize(2 * num_V + 1, quad_V.cols()); }
@@ -148,19 +148,31 @@ void quad2triF(
   Eigen::Index order2[3];
 
   if (orientation == 0) {
-    order1[0] = 1;
-    order1[1] = 2;
-    order1[2] = 3;
-    order2[0] = 2;
-    order2[1] = 4;
-    order2[2] = 3;
-  } else {
-    order1[0] = 1;
-    order1[1] = 3;
+    order1[0] = 0;
+    order1[1] = 1;
     order1[2] = 2;
-    order2[0] = 2;
+    order2[0] = 1;
     order2[1] = 3;
-    order2[2] = 4;
+    order2[2] = 2;
+//    order1[0] = 1;
+//    order1[1] = 2;
+//    order1[2] = 3;
+//    order2[0] = 2;
+//    order2[1] = 4;
+//    order2[2] = 3;
+  } else {
+    order1[0] = 0;
+    order1[1] = 2;
+    order1[2] = 1;
+    order2[0] = 1;
+    order2[1] = 2;
+    order2[2] = 3;
+//    order1[0] = 1;
+//    order1[1] = 3;
+//    order1[2] = 2;
+//    order2[0] = 2;
+//    order2[1] = 3;
+//    order2[2] = 4;
   }
 
   for (int i = 0; i < num_F; ++i) {

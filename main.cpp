@@ -36,8 +36,8 @@ int main(int argc, char *argv[])
   const Eigen::RowVector3d red(1,0.0,0.0);
 
   const Eigen::Vector3d contact(0.25, 0.5, 0);
-  const int voxel_scale = 10;
-  const int min_carve = 2;
+  const int voxel_scale = 4;
+  const int min_carve = 1;
   const double thickness = 0.1;
   const double density = 1;
   Eigen::MatrixXd MiV;
@@ -65,6 +65,9 @@ int main(int argc, char *argv[])
   std::cerr << "F:\n" << F << std::endl;
 
   inner_carving(V, F, contact, voxel_scale, min_carve, thickness, density, MiV, MiF);
+
+  std::cerr << "MiV:\n" << MiV << std::endl;
+  std::cerr << "MiF:\n" << MiV << std::endl;
 
   viewer.data().set_mesh(MiV,MiF);
 //  viewer.data().set_mesh(V,F);
