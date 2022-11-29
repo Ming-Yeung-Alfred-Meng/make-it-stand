@@ -2,12 +2,9 @@
 #include <cmath>
 #include <vector>
 #include <igl/voxel_grid.h>
-#include <igl/dual_contouring.h>
 #include "inner_carving.h"
 #include "center_of_mass.h"
 #include "voxel_indices.h"
-#include "isovoxel.h"
-#include "helper_g.h"
 #include "voxel_contouring.h"
 #include "cube.h"
 #include "face_contribution_to_com.h"

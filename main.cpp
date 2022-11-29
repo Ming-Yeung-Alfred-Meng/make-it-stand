@@ -1,240 +1,293 @@
-#include <igl/avg_edge_length.h>
+#include <igl/min_quad_with_fixed.h>
 #include <igl/read_triangle_mesh.h>
-#include <igl/parula.h>
-#include <igl/doublearea.h>
 #include <igl/opengl/glfw/Viewer.h>
+#include <igl/project.h>
+#include <igl/unproject.h>
+#include <igl/snap_points.h>
+#include <igl/unproject_onto_mesh.h>
 #include <Eigen/Core>
-#include <igl/winding_number.h>
-#include <igl/grid.h>
-#include <igl/voxel_grid.h>
-#include <cmath>
+#include <iostream>
+#include <stack>
+#include "arap_precompute.h"
+#include "arap_single_iteration.h"
+#include "biharmonic_precompute.h"
+#include "biharmonic_solve.h"
 
+// Undoable
+struct State
+{
+    // Rest and transformed control points
+    Eigen::MatrixXd CV, CU;
+    bool placing_handles = true;
+} s;
 
 int main(int argc, char *argv[])
 {
-  int a[3];
-  a = {1, 2, 3};
-  std::cout << "a: " << a << std::endl;
+  // Undo Management
+  std::stack<State> undo_stack,redo_stack;
+  const auto push_undo = [&](State & _s=s)
+  {
+      undo_stack.push(_s);
+      // clear
+      redo_stack = std::stack<State>();
+  };
 
-//  char a = 1;
-//  std::cout << (a == 2) << std::endl;
-//  Eigen::MatrixXd m;
-//  std::cout << "m.rows() & m.cols(): " << m.rows() << " & " << m.cols() << std::endl;
-//  Eigen::RowVector3d r(1., 2., 3.);
-//  Eigen::MatrixXd m(3, 3);
-//  m << r;
+  const auto undo = [&]()
+  {
+      if(!undo_stack.empty())
+      {
+        redo_stack.push(s);
+        s = undo_stack.top();
+        undo_stack.pop();
+      }
+  };
 
-//  std::cout << "m:\n" << m << std::endl;
-//  Eigen::Matrix2Xd m;
-//  std::cout << "m.rows():\n" << m.rows() << std::endl;
-//  std::vector<int> x = {1, 2, 3};
-//  Eigen::MatrixXd::Index i;
-//
-//  std::cout << "i: " << i << std::endl;
-//  i = 3 + 1;
-//  std::cout << "i: " << i << std::endl;
-//  i = 9;
-//  std::cout << "i: " << i << std::endl;
-//
-//  i = 1;
-//
-//  std::cout << "x[1]: " << x[i] << std::endl;
+  const auto redo = [&]()
+  {
+      if(!redo_stack.empty())
+      {
+        undo_stack.push(s);
+        s = redo_stack.top();
+        redo_stack.pop();
+      }
+  };
 
-//  std::vector<int> l = {1, 3, 2};
-//
-//  std::sort(l.begin() + 2, l.end());
-//
-//  for (int i : l) {
-//    std::cout << i << ' ';
-//  }
-//
-//  std::cout << std::endl;
-//
-//  std::sort(l.begin() + 7, l.end());
-//
-//  for (int i : l) {
-//    std::cout << i << ' ';
-//  }
-//
-//  std::cout << std::endl;
-//
-//  std::sort(l.begin() + 1, l.end());
-//
-//  for (int i : l) {
-//    std::cout << i << ' ';
-//  }
+  Eigen::MatrixXd V,U;
+  Eigen::MatrixXi F;
+  long sel = -1;
+  Eigen::RowVector3f last_mouse;
+  igl::min_quad_with_fixed_data<double> biharmonic_data, arap_data;
+  Eigen::SparseMatrix<double> arap_K;
 
-//  std::cout << std::abs(-0.33) << std::endl;
+  // Load input meshes
+  igl::read_triangle_mesh(
+    (argc>1?argv[1]:"../data/decimated-knight.off"),V,F);
+  //(argc > 1 ? argv[1] : "../data/knight.off"), V, F);
+//    (argc > 1 ? argv[1] : "../data/bunny.off"), V, F);
 
-//  Eigen::RowVector3d v(1, 2, 3);
-//
-//  std::cout << "v.rows(): " << v.rows() << std::endl;
-//  std::cout << "v.cols(): " << v.cols() << std::endl;
-//  std::cout << "v.row(0): " << v.row(0) << std::endl;
-//
-//  Eigen::MatrixXd m(2, 3);
-//  m << 1, 1, 1, 2, 2, 2;
-//
-//  std::cout << "m.row(0).rows(): " << m.row(0).rows() << std::endl;
-//  std::cout << "m.row(0).cols(): " << m.row(0).cols() << std::endl;
-//  std::cout << "v.row(0).row(0): " << v.row(0).row(0) << std::endl;
-//  std::cout << "m(3): " << m(3) << std::endl;
-//
-//  Eigen::VectorXd a;
-//  a.resize(10, 1);
-//
-//  std::cout << "a:\n" << a << std::endl;
-//
-//  double s = 1.-2.*2;
-//
-//  Eigen::MatrixXd V(8, 3);
-//  V << 0, 0, 0,
-//       1, 0, 0,
-//       0, 1, 0,
-//       1, 1, 0,
-//       0, 0, 1,
-//       1, 0, 1,
-//       0, 1, 1,
-//       1, 1, 1;
-//
-//  Eigen::MatrixXd grid;
-//  Eigen::RowVector3i side;
-//  igl::voxel_grid(V, 0, 10, 1, grid, side);
-//  std::cout << "grid:\n" << grid << std::endl;
-//  std::cout << "side:\n" << side << std::endl;
-//  Eigen::MatrixXd G;
-//  Eigen::Vector3i size(3, 3, 3);
-//
-//  igl::grid(size, G);
-//
-//  std::cout << "G:\n" << G << std::endl;
+  U = V;
+  igl::opengl::glfw::Viewer viewer;
+  std::cout<<R"(
+[click]  To place new control point
+[drag]   To move control point
+[space]  Toggle whether placing control points or deforming
+M,m      Switch deformation methods
+U,u      Update deformation (i.e., run another iteration of solver)
+R,r      Reset control points
+⌘ Z      Undo
+⌘ ⇧ Z    Redo
+)";
 
-//  Eigen::MatrixXd V(4, 3);
-//  V << 0, 0, 0,
-//       1, 0, 0,
-//       0, 1, 0,
-//       1, 0, 1;
-//
-//  Eigen::MatrixXi F(4, 3);
-//  F << 0, 1, 2,
-//       0, 2, 3,
-//       2, 1, 3,
-//       0, 3, 1;
-//
-//  Eigen::MatrixXd Q(1, 3);
-//  Q << 0.5, 0.5, 0.1;
-//
-//  Eigen::MatrixXi W;
-//
-//  igl::winding_number(V, F, Q, W);
-//
-//  std::cout << "winding numbers:\n" << W << std::endl;
+  enum Method
+  {
+      BIHARMONIC = 0,
+      ARAP = 1,
+      NUM_METHODS = 2,
+  } method = BIHARMONIC;
 
-//  // Scale for the color axis
-//  double scale = 100.0;
-//  Eigen::MatrixXd V;
-//  Eigen::MatrixXi F;
-//  // Load input meshes
-//  igl::read_triangle_mesh(
-//    (argc>1?argv[1]:"../data/cactus.obj"),V,F);
-//
-//  Eigen::SparseMatrix<double> M;
-//  igl::massmatrix(V,F,igl::MASSMATRIX_TYPE_DEFAULT,M);
-//  Eigen::VectorXd A = M.diagonal();
-//
-//  Eigen::VectorXd D,G,H,K1,K2;
-//  Eigen::MatrixXd D1,D2;
-//  // Angle defect ~ locally integrated Gaussian curvature
-//  angle_defect(V,F,D);
-//  // average locally (i.e., "un-integrate" to pointwise quantity for
-//  // visualization)
-//  G = D.array()/A.array();
-//  mean_curvature(V,F,H);
-//  principal_curvatures(V,F,D1,D2,K1,K2);
-//
-//  igl::opengl::glfw::Viewer viewer;
-//  std::cout<<R"(
-//S,s      Stretch, squish color axis range
-//G        Show Gaussian curvature (using principal_curvatures)
-//g        Show Gaussian curvature (using angle_defect)
-//M        Show discrete mean curvature (using principal_curvatures)
-//m        Show discrete mean curvature (using mean_curvature)
-//K        Show maximum curvature (using principal_curvatures)
-//k        Show minimum curvature (using principal_curvatures)
-//D,d      Show principal directions
-//)";
-//  // Default to mean curvature
-//  Eigen::VectorXd Z = H;
-//  const auto update = [&]()
-//  {
-//    Eigen::MatrixXd C;
-//    igl::parula(Z,-scale,scale,C);
-//    viewer.data().set_colors(C);
-//  };
-//  viewer.callback_key_pressed =
-//    [&](igl::opengl::glfw::Viewer &, unsigned int key, int mod)
-//  {
-//    switch(key)
-//    {
-//      case 'D':
-//      case 'd':
-//        viewer.data().show_overlay ^= 1;
-//        break;
-//      case 'G':
-//        Z = K1.array()*K2.array();
-//        break;
-//      case 'g':
-//        Z = G;
-//        break;
-//      case 'K':
-//        Z = K1;
-//        break;
-//      case 'k':
-//        Z = K2;
-//        break;
-//      case 'M':
-//        Z = 0.5*(K1+K2);
-//        break;
-//      case 'm':
-//        Z = H;
-//        break;
-//      case 'S':
-//      case 's':
-//        scale *= key=='S' ? 2.0 : 0.5;
-//        std::cout<<"Color axis range: ["<<-scale<<","<<scale<<"]"<<std::endl;
-//        break;
-//      default:
-//        return false;
-//    }
-//    update();
-//    return true;
-//  };
-//
-//  viewer.data().set_mesh(V,F);
-//  Eigen::MatrixXd lP(V.rows()*4,3);
-//  const double h = igl::avg_edge_length(V,F);
-//  lP << V-0.5*h*D1, V+0.5*h*D1, V-0.5*h*D2, V+0.5*h*D2;
-//  Eigen::MatrixXi lE(2*V.rows(),2);
-//  Eigen::MatrixXd lC(2*V.rows(),3);
-//
-//  const Eigen::RowVector3d orange(1.0,0.7,0.2);
-//  const Eigen::RowVector3d yellow(1.0,0.9,0.2);
-//  const Eigen::RowVector3d blue(0.2,0.3,0.8);
-//  for(int e = 0;e<V.rows();e++)
-//  {
-//    lE(e,0)          = e+0*V.rows();
-//    lE(e,1)          = e+1*V.rows();
-//    lE(V.rows()+e,0) = e+2*V.rows();
-//    lE(V.rows()+e,1) = e+3*V.rows();
-//    lC.row(         e) = orange;
-//    lC.row(V.rows()+e) = blue;
-//  }
-//  viewer.data().set_edges(lP,lE,lC);
-//
-//  update();
-//  viewer.data().show_lines = false;
-//  viewer.data().show_overlay = false;
-//  viewer.data().face_based = false;
-//  viewer.launch();
-//  return EXIT_SUCCESS;
+  const auto & update = [&]()
+  {
+      // predefined colors
+      const Eigen::RowVector3d orange(1.0,0.7,0.2);
+      const Eigen::RowVector3d yellow(1.0,0.9,0.2);
+      const Eigen::RowVector3d blue(0.2,0.3,0.8);
+      const Eigen::RowVector3d green(0.2,0.6,0.3);
+      if(s.placing_handles)
+      {
+        viewer.data().set_vertices(V);
+        viewer.data().set_colors(blue);
+        viewer.data().set_points(s.CV,orange);
+      }else
+      {
+        // SOLVE FOR DEFORMATION
+        switch(method)
+        {
+          default:
+          case BIHARMONIC:
+          {
+            Eigen::MatrixXd D;
+            biharmonic_solve(biharmonic_data,s.CU-s.CV,D);
+            U = V+D;
+            break;
+          }
+          case ARAP:
+          {
+            arap_single_iteration(arap_data,arap_K,s.CU,U);
+            break;
+          }
+        }
+        viewer.data().set_vertices(U);
+        viewer.data().set_colors(method==BIHARMONIC?orange:yellow);
+        viewer.data().set_points(s.CU,method==BIHARMONIC?blue:green);
+      }
+      viewer.data().compute_normals();
+  };
+
+
+  viewer.callback_mouse_down =
+    [&](igl::opengl::glfw::Viewer&, int, int)->bool
+    {
+        last_mouse = Eigen::RowVector3f(
+          viewer.current_mouse_x,viewer.core().viewport(3)-viewer.current_mouse_y,0);
+        if(s.placing_handles)
+        {
+          // Find closest point on mesh to mouse position
+          int fid;
+          Eigen::Vector3f bary;
+          if(igl::unproject_onto_mesh(
+            last_mouse.head(2),
+            viewer.core().view,
+            viewer.core().proj,
+            viewer.core().viewport,
+            V, F,
+            fid, bary))
+          {
+            long c;
+            bary.maxCoeff(&c);
+            Eigen::RowVector3d new_c = V.row(F(fid,c));
+            if(s.CV.size()==0 || (s.CV.rowwise()-new_c).rowwise().norm().minCoeff() > 0)
+            {
+              push_undo();
+              s.CV.conservativeResize(s.CV.rows()+1,3);
+              // Snap to closest vertex on hit face
+              s.CV.row(s.CV.rows()-1) = new_c;
+              update();
+              return true;
+            }
+          }
+        }else
+        {
+          // Move closest control point
+          Eigen::MatrixXf CP;
+          igl::project(
+            Eigen::MatrixXf(s.CU.cast<float>()),
+            viewer.core().view,
+            viewer.core().proj, viewer.core().viewport, CP);
+          Eigen::VectorXf D = (CP.rowwise()-last_mouse).rowwise().norm();
+          sel = (D.minCoeff(&sel) < 30)?sel:-1;
+          if(sel != -1)
+          {
+            last_mouse(2) = CP(sel,2);
+            push_undo();
+            update();
+            return true;
+          }
+        }
+        return false;
+    };
+
+
+  viewer.callback_mouse_move = [&](igl::opengl::glfw::Viewer &, int,int)->bool
+  {
+      if(sel!=-1)
+      {
+        Eigen::RowVector3f drag_mouse(
+          viewer.current_mouse_x,
+          viewer.core().viewport(3) - viewer.current_mouse_y,
+          last_mouse(2));
+        Eigen::RowVector3f drag_scene,last_scene;
+        igl::unproject(
+          drag_mouse,
+          viewer.core().view,
+          viewer.core().proj,
+          viewer.core().viewport,
+          drag_scene);
+        igl::unproject(
+          last_mouse,
+          viewer.core().view,
+          viewer.core().proj,
+          viewer.core().viewport,
+          last_scene);
+        s.CU.row(sel) += (drag_scene-last_scene).cast<double>();
+        last_mouse = drag_mouse;
+        update();
+        return true;
+      }
+      return false;
+  };
+
+
+  viewer.callback_mouse_up = [&](igl::opengl::glfw::Viewer&, int, int)->bool
+  {
+      sel = -1;
+      return false;
+  };
+
+
+
+  viewer.callback_key_pressed =
+    [&](igl::opengl::glfw::Viewer &, unsigned int key, int mod)
+    {
+        switch(key)
+        {
+          case 'M':
+          case 'm':
+          {
+            method = (Method)(((int)(method)+1)%((int)(NUM_METHODS)));
+            break;
+          }
+          case 'R':
+          case 'r':
+          {
+            push_undo();
+            s.CU = s.CV;
+            break;
+          }
+          case 'U':
+          case 'u':
+          {
+            // Just trigger an update
+            break;
+          }
+          case ' ':
+            push_undo();
+            s.placing_handles ^= 1;
+            if(!s.placing_handles && s.CV.rows()>0)
+            {
+              // Switching to deformation mode
+              s.CU = s.CV;
+              Eigen::VectorXi b;
+              igl::snap_points(s.CV,V,b);
+              // PRECOMPUTATION FOR DEFORMATION
+              biharmonic_precompute(V,F,b,biharmonic_data);
+              arap_precompute(V,F,b,arap_data,arap_K);
+            }
+            break;
+          default:
+            return false;
+        }
+        update();
+        return true;
+    };
+
+  // Special callback for handling undo
+  viewer.callback_key_down =
+    [&](igl::opengl::glfw::Viewer &, unsigned char key, int mod)->bool
+    {
+        if(key == 'Z' && (mod & GLFW_MOD_SUPER))
+        {
+          (mod & GLFW_MOD_SHIFT) ? redo() : undo();
+          update();
+          return true;
+        }
+        return false;
+    };
+  viewer.callback_pre_draw =
+    [&](igl::opengl::glfw::Viewer &)->bool
+    {
+        if(viewer.core().is_animating && !s.placing_handles && method == ARAP)
+        {
+          arap_single_iteration(arap_data,arap_K,s.CU,U);
+          update();
+        }
+        return false;
+    };
+
+  viewer.data().set_mesh(V,F);
+  viewer.data().show_lines = false;
+  viewer.core().is_animating = true;
+  viewer.data().face_based = true;
+  update();
+  viewer.launch();
+  return EXIT_SUCCESS;
 }
