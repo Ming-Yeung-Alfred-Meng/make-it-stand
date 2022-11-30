@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
   const Eigen::RowVector3d red(1,0.0,0.0);
 
   const Eigen::Vector3d contact(0.25, 0.5, 0);
-  const int voxel_scale = 4;
+  const int voxel_scale = 10;
   const int min_carve = 1;
   const double thickness = 0.1;
   const double density = 1;
@@ -44,6 +44,9 @@ int main(int argc, char *argv[])
   Eigen::MatrixXi MiF;
   Eigen::MatrixXd V;
   Eigen::MatrixXi F;
+
+  Eigen::MatrixXd V2;
+  Eigen::MatrixXi F2;
 
   igl::opengl::glfw::Viewer viewer;
 
@@ -61,20 +64,21 @@ int main(int argc, char *argv[])
 //    (argc>1?argv[1]:"../data/elephant.obj"),V,F);
     (argc>1?argv[1]:"../data/cube.obj"),V,F);
 
-  std::cerr << "V:\n" << V << std::endl;
-  std::cerr << "F:\n" << F << std::endl;
+//  std::cerr << "V:\n" << V << std::endl;
+//  std::cerr << "F:\n" << F << std::endl;
 
   inner_carving(V, F, contact, voxel_scale, min_carve, thickness, density, MiV, MiF);
 
-  std::cerr << "MiV:\n" << MiV << std::endl;
-  std::cerr << "MiF:\n" << MiV << std::endl;
+//  std::cerr << "MiV:\n" << MiV << std::endl;
+//  std::cerr << "MiF:\n" << MiV << std::endl;
 
   viewer.data().set_mesh(MiV,MiF);
 //  viewer.data().set_mesh(V,F);
+//  viewer.data().set_mesh(V2,F2);
   viewer.data().show_lines = false;
   viewer.core().is_animating = true;
   viewer.data().face_based = true;
-  update();
+//  update();
   viewer.launch();
 
 //  inner_carving(V, F, contact, voxel_scale, min_carve, thickness, density, MiV, MiF);

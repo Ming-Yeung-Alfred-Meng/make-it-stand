@@ -1,3 +1,4 @@
+#include <iostream>
 #include <algorithm>
 #include <cmath>
 #include <vector>
@@ -32,6 +33,9 @@ void inner_carving(
   Eigen::MatrixXd grid;
   Eigen::RowVector3i side;
   igl::voxel_grid(MoV, 0, voxel_scale, 1, grid, side);
+
+  std::cerr << "grid:\n" << grid << std::endl;
+
   const double length = grid(1, 0) - grid(0, 0);
 
   Eigen::Vector3d CoM;
@@ -64,6 +68,9 @@ void inner_carving(
     original_j = optimal_j; // must be here
 
     while (j < indices.size() && distance_from_plane(grid.row(indices[j]), contact, original_CoM) > 0) {
+
+      std::cerr << "Current voxel being carved:\n" << grid.row(indices[j]) << std::endl;
+
       original_mass = mass;
 
       mass = reduce_mass_by_a_voxel(original_mass, density, length);
@@ -79,11 +86,11 @@ void inner_carving(
       ++j;
     }
 
-    assert (j < indices.size() && "The plane is outside the mesh!");
-    assert (optimal_j < indices.size() - 1 && "The entire mesh is now hollow!");
-
-    std::sort(indices.begin() + optimal_j + 1, indices.end(), generate_comp(grid, contact, optimal_CoM));
-
+//    assert (j < indices.size() && "The plane is outside the mesh!"); // Not sure if this is actually useful.
+//    assert (optimal_j < indices.size() - 1 && "The entire mesh is now hollow!"); // Not sure if this is actually useful.
+    if (optimal_j < indices.size() - 1) {
+      std::sort(indices.begin() + optimal_j + 1, indices.end(), generate_comp(grid, contact, optimal_CoM));
+    }
   } while (min_energy < original_energy && optimal_j - original_j > min_carve);
 
   int in_out[grid.rows()];
@@ -206,7 +213,7 @@ void build_in_out(
 {
   std::fill_n(in_out, size, 1);
 
-  for (std::vector<int>::iterator i = begin; i != end; ++i) {
+  for (std::vector<int>::iterator i = begin; i != end + 1; ++i) {
     in_out[*i] = -1;
   }
 }

@@ -32,16 +32,36 @@ void voxel_contouring(
   std::unordered_map< std::tuple<int,int,int>, Eigen::Index, igl::Hash > gridV2V;
 //  Eigen::Matrix<double, Eigen::Dynamic, 3> quad_V;
   Eigen::Index num_V = 0;
-  Eigen::MatrixXi quad_F;
   Eigen::Index num_F = 0;
-  int u;
+  Eigen::MatrixXi quad_F;
+
+  V.resize(0, 3);
+  quad_F.resize(0, 4);
 
   single_direction_quads(0, grid, side, in_out, gridV2V, V, quad_F, num_V, num_F);
+
+//  std::cerr << "V after looping faces in the first direction:" << std::endl;
+//  std::cerr << "V:\n" << V << std::endl;
+//  std::cerr << "V.rows() & V.cols():\n" << V.rows() << " & " << V.cols() << std::endl;
+
   single_direction_quads(1, grid, side, in_out, gridV2V, V, quad_F, num_V, num_F);
   single_direction_quads(2, grid, side, in_out, gridV2V, V, quad_F, num_V, num_F);
 
+//  std::cerr << "V before conservativeResize():" << std::endl;
+//  std::cerr << "V:\n" << V << std::endl;
+//  std::cerr << "V.rows() & V.cols():\n" << V.rows() << " & " << V.cols() << std::endl;
+
   V.conservativeResize(num_V, V.cols());
+
+//  std::cerr << "V after conservativeResize():" << std::endl;
+//  std::cerr << "V:\n" << V << std::endl;
+//  std::cerr << "V.rows() & V.cols():\n" << V.rows() << " & " << V.cols() << std::endl;
+
   quad2triF(quad_F, num_F, 1, F);
+
+//  std::cerr << "F after conservativeResize():" << std::endl;
+//  std::cerr << "F:\n" << F << std::endl;
+//  std::cerr << "F.rows() & F.cols():\n" << F.rows() << " & " << F.cols() << std::endl;
   // Truncate quad_V into V using block operations and turn quad_F into F (with a helper function).
 }
 
@@ -64,8 +84,8 @@ void single_direction_quads(
   double half_step = (grid(1, 0) - grid(0, 0)) / 2;
   int u;
 
-  quad_V.resize(0, 3);
-  quad_F.resize(0, 4);
+//  quad_V.resize(0, 3);
+//  quad_F.resize(0, 4);
 
   for (int i = 0; i < side(0) - (1 * (d == 0)); ++i) {
     for (int j = 0; j < side(1) - (1 * (d == 1)); ++j) {
@@ -105,9 +125,15 @@ void single_direction_quads(
               } else {
                 if (num_V + 1 >= quad_V.rows()) { quad_V.conservativeResize(2 * num_V + 1, quad_V.cols()); }
                 quad_V.row(num_V) = grid.row(linear_index(side, std::get<0>(key), std::get<1>(key), std::get<2>(key)));
+
+                std::cerr << "New vertex's corresponding voxel center:\n" << quad_V.row(num_V) << std::endl;
+
                 quad_V(num_V, 0) -= half_step;
                 quad_V(num_V, 1) -= half_step;
                 quad_V(num_V, 2) -= half_step;
+
+                std::cerr << "New vertex added:\n" << quad_V.row(num_V) << std::endl;
+
                 gridV2V[key] = num_V;
                 quad_F(num_F, u) = num_V;
                 ++num_V;
