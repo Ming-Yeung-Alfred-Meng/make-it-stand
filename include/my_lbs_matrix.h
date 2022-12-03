@@ -13,11 +13,11 @@
 // y-translation, z-translation, uniform scale.
 //
 // Inputs:
-//   V  #V vector of vertically stacked 3d vertex positions before deformation
-//   W  #V/3 by #N matrix of weights
+//   V  #V by 3 vertex positions
+//   W  #V by #N matrix of weights
 //
 // Output:
-//   M  #V' by 4 * #N matrix lbs matrix
+//   M  3 * #V by 4 * #N matrix lbs matrix
 //
 void my_lbs_matrix(
   const Eigen::VectorXd &V,

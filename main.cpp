@@ -30,7 +30,26 @@ struct State
 
 int main(int argc, char *argv[])
 {
-  std::cout << "5 / 3 = " << 5 / 3 << std::endl;
+//  Eigen::VectorXd v(5);
+//  v << 1, 1, 1, 1, 1;
+
+  Eigen::MatrixXd V(1, 3);
+  V << 1, 2, 3;
+
+  Eigen::MatrixXd m = Eigen::Matrix<double, 10, 10>::Zero();
+
+  std::cout << "m:\n" << m << std::endl;
+
+  m.block(1, 1, 3, 3).setIdentity();
+  std::cout << "m:\n" << m << std::endl;
+//  m.block(1, 4, 3, 1) = v.segment(1, 3);
+  m.block(1, 4, 3, 1) = V.row(0).transpose();
+  std::cout << "m:\n" << m << std::endl;
+  m.block(1, 1, 3, 4) *= 2;
+  std::cout << "m:\n" << m << std::endl;
+
+
+//  std::cout << "5 / 3 = " << 5 / 3 << std::endl;
 //  Eigen::VectorXd V(5);
 //
 //  std::cout << "V.rows() = " << V.rows() << std::endl;
