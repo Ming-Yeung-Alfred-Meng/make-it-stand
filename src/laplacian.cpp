@@ -24,6 +24,9 @@ void laplacian(
       add_block(F(i, (j + 1) % 3), F(i, (j + 1) % 3), -Lap_entries(i, (j + 2) % 3), triplet_list);
     }
   }
+
+  Lap.resize(3 * V.rows(), 3 * V.rows());
+  Lap.setFromTriplets(triplet_list.begin(), triplet_list.end());
 }
 
 

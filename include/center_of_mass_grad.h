@@ -10,7 +10,8 @@
 //   F  #F by 3 list of vertex indices into V
 //
 // Output:
-//   grad  3 by
+//   grad  3 by 3 * #V  gradient matrix
+//
 void center_of_mass_grad(
   const Eigen::MatrixXd &V,
   const Eigen::MatrixXi &F,
