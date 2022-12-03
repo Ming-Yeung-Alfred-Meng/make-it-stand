@@ -30,6 +30,8 @@ void inner_carving(
   Eigen::MatrixXd &MiV,
   Eigen::MatrixXi &MiF)
 {
+  std::cerr << "MoV.rows() & MoV.cols():\n" << MoV.rows() << " & " << MoV.cols() << std::endl;
+
   Eigen::MatrixXd grid;
   Eigen::RowVector3i side;
   igl::voxel_grid(MoV, 0, voxel_scale, 1, grid, side);
@@ -88,7 +90,8 @@ void inner_carving(
 
 //    assert (j < indices.size() && "The plane is outside the mesh!"); // Not sure if this is actually useful.
 //    assert (optimal_j < indices.size() - 1 && "The entire mesh is now hollow!"); // Not sure if this is actually useful.
-    if (optimal_j < indices.size() - 1) {
+    std::cerr << (optimal_j < indices.size() - 1) << std::endl;
+    if (optimal_j < ((int) indices.size()) - 1) {
       std::sort(indices.begin() + optimal_j + 1, indices.end(), generate_comp(grid, contact, optimal_CoM));
     }
   } while (min_energy < original_energy && optimal_j - original_j > min_carve);

@@ -8,8 +8,8 @@ Eigen::Index linear_index(
   const int k)
 {
   assert(0 <= i && i < side(0));
-  assert(0 <= j && i < side(1));
-  assert(0 <= k && i < side(2));
+  assert(0 <= j && j < side(1));
+  assert(0 <= k && k < side(2));
 
   return i + j * side(0) + k * side(0) * side(1);
 }
