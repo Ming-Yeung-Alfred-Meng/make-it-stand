@@ -92,3 +92,42 @@ face_contribution_to_com()
     // loop through each row
     //  fill every 4th slot of the corresponding row of V
     //  weight of each (i, j) block is W(i, j)
+
+
+ my_lbs_matrix
+   // compute bbw
+   // initialize a matrix of all 0s
+   // fill in 1s in the appropriate places
+
+     // go through each row, if that row id by mod 3, if 0, insert 1 at column 4 * j
+     // 1, insert at column 4 * j + 1, 2 then 4 * j + 2
+
+   // apply the weights
+   // use update lbs_matrix to fill in the vertex positions
+
+
+voxel_indices
+
+//  Eigen::RowVectorXd S;
+//  Eigen::RowVectorXd I;
+//  Eigen::MatrixXd C;
+//  Eigen::MatrixXd N;
+//
+//  for (int i = 0; i < grid.rows(); ++i) {
+//    igl::signed_distance(grid.row(i), MoV, MoF, igl::SIGNED_DISTANCE_TYPE_FAST_WINDING_NUMBER, S, I, C, N);
+//
+//    std::cerr << "S:\n" << S << std::endl;
+//
+//    if (S(0) <= 0 && std::abs(S(0)) >= min) {
+//      indices.emplace_back(i);
+//    }
+//  }
+
+  // go through each point in grid
+  // call signed_distance
+  // if sign is correct/within hull and abs distance is greater than min, put its index into indices vector
+
+laplacian
+    // go through every face,
+    // for each, loop through the three edges,
+    // for each edge, at the contributions to the vertex index location into lap

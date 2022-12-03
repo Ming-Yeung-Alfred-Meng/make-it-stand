@@ -29,22 +29,4 @@ void voxel_indices(
     std::cerr << i << std::endl;
   }
 
-//  Eigen::RowVectorXd S;
-//  Eigen::RowVectorXd I;
-//  Eigen::MatrixXd C;
-//  Eigen::MatrixXd N;
-//
-//  for (int i = 0; i < grid.rows(); ++i) {
-//    igl::signed_distance(grid.row(i), MoV, MoF, igl::SIGNED_DISTANCE_TYPE_FAST_WINDING_NUMBER, S, I, C, N);
-//
-//    std::cerr << "S:\n" << S << std::endl;
-//
-//    if (S(0) <= 0 && std::abs(S(0)) >= min) {
-//      indices.emplace_back(i);
-//    }
-//  }
-
-  // go through each point in grid
-  // call signed_distance
-  // if sign is correct/within hull and abs distance is greater than min, put its index into indices vector
 }
