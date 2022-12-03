@@ -30,24 +30,25 @@ struct State
 
 int main(int argc, char *argv[])
 {
-  Eigen::VectorXd V(5);
-
-  std::cout << "V.rows() = " << V.rows() << std::endl;
-  std::cout << "V.cols() = " << V.cols() << std::endl;
-
-  Eigen::MatrixXd M(5, 5);
-  M(2, 2) = 5;
-
-  std::cout << "M before setZero():\n" << M << std::endl;
-
-  M.setZero();
-
-  std::cout << "M after setZero():\n" << M << std::endl;
-
-  Eigen::MatrixXd a;
-  Eigen::MatrixXd b;
-  Eigen::SparseMatrix<double> c;
-  igl::lbs_matrix_column(a, b, c);
+  std::cout << "5 / 3 = " << 5 / 3 << std::endl;
+//  Eigen::VectorXd V(5);
+//
+//  std::cout << "V.rows() = " << V.rows() << std::endl;
+//  std::cout << "V.cols() = " << V.cols() << std::endl;
+//
+//  Eigen::MatrixXd M(5, 5);
+//  M(2, 2) = 5;
+//
+//  std::cout << "M before setZero():\n" << M << std::endl;
+//
+//  M.setZero();
+//
+//  std::cout << "M after setZero():\n" << M << std::endl;
+//
+//  Eigen::MatrixXd a;
+//  Eigen::MatrixXd b;
+//  Eigen::SparseMatrix<double> c;
+//  igl::lbs_matrix_column(a, b, c);
 
 //  const Eigen::RowVector3d orange(1.0,0.7,0.2);
 //  const Eigen::RowVector3d yellow(1.0,0.9,0.2);
