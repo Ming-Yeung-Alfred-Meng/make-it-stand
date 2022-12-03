@@ -86,3 +86,9 @@ face_contribution_to_com()
   //    fetch each vertex of the face from V
   //    compute contribution
   //    add it to con
+
+
+ update_lbs_matrix
+    // loop through each row
+    //  fill every 4th slot of the corresponding row of V
+    //  weight of each (i, j) block is W(i, j)
