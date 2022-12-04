@@ -131,3 +131,11 @@ laplacian
     // go through every face,
     // for each, loop through the three edges,
     // for each edge, at the contributions to the vertex index location into lap
+
+mass_grad
+
+  // go over every face
+  //  for each vertex, take the derivative of the face's contribution wrt that vertex
+  //  add the derivative wrt each coordinate of the vertex into the appropriate slot of grad
+
+  // and use mod to calculate indices into F.
