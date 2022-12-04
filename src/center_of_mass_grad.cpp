@@ -9,5 +9,5 @@ void center_of_mass_grad(
   const Eigen::MatrixXi &F,
   Eigen::MatrixXd &grad)
 {
-  //
+
 }

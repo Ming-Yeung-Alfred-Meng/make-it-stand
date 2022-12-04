@@ -3,6 +3,7 @@
 void mass_grad(
   const Eigen::MatrixXd &V,
   const Eigen::MatrixXi &F,
+  const double density,
   Eigen::RowVectorXd &grad)
 {
   grad.resize(V.rows());
@@ -23,4 +24,6 @@ void mass_grad(
                                * (V(F(i, j), 0) + V(F(i, (j + 1) % 3), 0) + V(F(i, (j + 2) % 3), 0));
     }
   }
+
+  grad *= (density / 6);
 }

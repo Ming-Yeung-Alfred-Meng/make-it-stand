@@ -38,8 +38,6 @@ double face_contribution_to_mass(
     vj = V.row(F(i, 1));
     vk = V.row(F(i, 2));
     mass += (vj - vi).cross(vk - vi)(0) * (vi + vj + vk)(0);
-//    mass += (vj - vi).cross(vk - vi).normalized()(0) * (vi + vj + vk)(0); // not this
-//    mass += (vj - vi).cross(vk - vi).normalized().dot((vi + vj + vk)); // not this
   }
 
   return mass;

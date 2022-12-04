@@ -139,3 +139,8 @@ mass_grad
   //  add the derivative wrt each coordinate of the vertex into the appropriate slot of grad
 
   // and use mod to calculate indices into F.
+
+
+mass
+  //    mass += (vj - vi).cross(vk - vi).normalized()(0) * (vi + vj + vk)(0); // not this
+  //    mass += (vj - vi).cross(vk - vi).normalized().dot((vi + vj + vk)); // not this
