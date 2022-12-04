@@ -144,3 +144,10 @@ mass_grad
 mass
   //    mass += (vj - vi).cross(vk - vi).normalized()(0) * (vi + vj + vk)(0); // not this
   //    mass += (vj - vi).cross(vk - vi).normalized().dot((vi + vj + vk)); // not this
+
+mass_center_of_mass_grad
+
+  // go through each face
+  //  go through each vertex
+  //   retrieve the vertices
+  //   add the 3 by 3 gradient matrix

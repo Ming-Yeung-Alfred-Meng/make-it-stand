@@ -30,23 +30,42 @@ struct State
 
 int main(int argc, char *argv[])
 {
+  Eigen::MatrixXd m(3, 3);
+  m << 1, 2, 3, 4, 5, 6, 7, 8, 9;
+
+  Eigen::Vector3d v(1, 2, 3);
+  Eigen::RowVector3d r(1, 2, 3);
+
+  std::cout << "v * r:\n" << v * r << std::endl;
+
+  std::cout << "m - v * r:\n" << m - v * r << std::endl;
+//  std::cout << 12. / 4. / 3. << std::endl;
+//  Eigen::MatrixXd m(3, 3);
+//  m.setZero();
+//  std::cout << "m:\n" << m << std::endl;
+//  m << 1, 1, 1, 1, 1, 1, 1, 1, 1;
+//  std::cout << "m:\n" << m << std::endl;
+//  m << 2, 2, 2, 2, 2, 2, 2, 2, 2;
+//  std::cout << "m:\n" << m << std::endl;
+//
+//  std::cout << "m.size():\n" << m.size() << std::endl;
 //  Eigen::VectorXd v(5);
 //  v << 1, 1, 1, 1, 1;
 
-  Eigen::MatrixXd V(1, 3);
-  V << 1, 2, 3;
+//  Eigen::MatrixXd V(1, 3);
+//  V << 1, 2, 3;
+//
+//  Eigen::MatrixXd m = Eigen::Matrix<double, 10, 10>::Zero();
 
-  Eigen::MatrixXd m = Eigen::Matrix<double, 10, 10>::Zero();
-
-  std::cout << "m:\n" << m << std::endl;
-
-  m.block(1, 1, 3, 3).setIdentity();
-  std::cout << "m:\n" << m << std::endl;
-//  m.block(1, 4, 3, 1) = v.segment(1, 3);
-  m.block(1, 4, 3, 1) = V.row(0).transpose();
-  std::cout << "m:\n" << m << std::endl;
-  m.block(1, 1, 3, 4) *= 2;
-  std::cout << "m:\n" << m << std::endl;
+//  std::cout << "m:\n" << m << std::endl;
+//
+//  m.block(1, 1, 3, 3).setIdentity();
+//  std::cout << "m:\n" << m << std::endl;
+////  m.block(1, 4, 3, 1) = v.segment(1, 3);
+//  m.block(1, 4, 3, 1) = V.row(0).transpose();
+//  std::cout << "m:\n" << m << std::endl;
+//  m.block(1, 1, 3, 4) *= 2;
+//  std::cout << "m:\n" << m << std::endl;
 
 
 //  std::cout << "5 / 3 = " << 5 / 3 << std::endl;

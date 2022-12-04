@@ -11,5 +11,6 @@
 void mass_grad(
   const Eigen::MatrixXd &V,
   const Eigen::MatrixXi &F,
+  const double density,
   Eigen::RowVectorXd &grad);
 #endif //INNER_CARVING_CPP_MASS_GRAD_H
