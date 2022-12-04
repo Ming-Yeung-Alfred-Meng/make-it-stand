@@ -7,15 +7,19 @@
 // respect to vertex positions.
 //
 // Inputs:
-//   V  #V by 3 vertex positions
-//   F  #F by 3 list of vertex indices into V
+//   dV  #dV by 3 vertex positions
+//   dF  #dF by 3 list of vertex indices into dV
 //
 // Output:
-//   grad  3 by 3 * #V  gradient matrix
+//   grad  3 by 3 * #dV  gradient matrix
 //
 void center_of_mass_grad(
-  const Eigen::MatrixXd &V,
-  const Eigen::MatrixXi &F,
+  const Eigen::MatrixXd &dV,
+  const Eigen::MatrixXi &dF,
+  const Eigen::MatrixXd &MoV,
+  const Eigen::MatrixXi &MoF,
+  const Eigen::MatrixXd &MiV,
+  const Eigen::MatrixXi &MiF,
   const double density,
   Eigen::MatrixXd &grad);
 #endif //INNER_CARVING_CPP_CENTER_OF_MASS_GRAD_H

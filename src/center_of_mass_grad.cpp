@@ -9,8 +9,12 @@ void mass_center_of_mass_grad(const Eigen::MatrixXd &V, const Eigen::MatrixXi &F
 
 
 void center_of_mass_grad(
-  const Eigen::MatrixXd &V,
-  const Eigen::MatrixXi &F,
+  const Eigen::MatrixXd &dV,
+  const Eigen::MatrixXi &dF,
+  const Eigen::MatrixXd &MoV,
+  const Eigen::MatrixXi &MoF,
+  const Eigen::MatrixXd &MiV,
+  const Eigen::MatrixXi &MiF,
   const double density,
   Eigen::MatrixXd &grad)
 {
@@ -19,10 +23,9 @@ void center_of_mass_grad(
   double m;
   Eigen::Vector3d CoM;
 
-  mass_grad(V, F, density, m_grad);
-  mass_center_of_mass_grad(V, F, density, mc_grad);
-  m = mass(V, F, density);
-  center_of_mass(V, F, density, CoM, m);
+  mass_grad(dV, dF, density, m_grad);
+  mass_center_of_mass_grad(dV, dF, density, mc_grad);
+  center_of_mass(MoV, MoF, MiV, MiF, density, CoM, m);
 
   grad = (mc_grad - CoM * m_grad) / m;
 }
