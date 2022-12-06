@@ -38,6 +38,8 @@ double face_contribution_to_mass(
     vj = V.row(F(i, 1));
     vk = V.row(F(i, 2));
     mass += (vj - vi).cross(vk - vi)(0) * (vi + vj + vk)(0);
+    // Reference the source code released by the authors of
+    // the paper, Make It Stand: Balancing Shapes for 3D Fabrication.
   }
 
   return mass;
