@@ -33,10 +33,10 @@ void deformation(
   Eigen::MatrixXd Molbs;
   Eigen::MatrixXd Milbs;
 
-  my_lbs_matrix(MoV, MoW, Molbs);
-  my_lbs_matrix(MiV, MiW, Milbs);
+//  my_lbs_matrix(MoV, MoW, Molbs);
+//  my_lbs_matrix(MiV, MiW, Milbs);
   laplacian(MoV, MoF, MoLap);
   // remeber to negate MoLap
 
-  center_of_mass_grad()
+//  center_of_mass_grad()
 }
