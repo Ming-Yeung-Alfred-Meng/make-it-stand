@@ -10,7 +10,7 @@ I plan to complete this project by January 9th 2023.
 
 1. Inner carving: The iterative processing of finding the optimal inner void to carve, and the construction of its mesh have been implemented.
   
-2. Matrices for deformation: The optimal deformation is obtained via gradient descent. Functions that build the matrices required for the computation are implemented.
+2. Matrices for deformation: The optimal deformation is obtained via gradient descent. Functions that build the matrices required for the computation have been implemented.
 
 ## What is under progress:
   
