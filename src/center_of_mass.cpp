@@ -13,7 +13,7 @@ void center_of_mass(
   double &m)
 {
   assert(MoV.cols() == 3);
-  assert(MoV.rows() == 3);
+  assert(MoV.cols() == 3);
 
   Eigen::Vector3d outer_con;
   Eigen::Vector3d inner_con;
@@ -34,7 +34,7 @@ void center_of_mass(
   double &m)
 {
   assert(MoV.cols() == 3);
-  assert(MoV.rows() == 3);
+  assert(MoV.cols() == 3);
 
   Eigen::Vector3d con;
   m = mass(MoV, MoF, density);
