@@ -3,6 +3,7 @@
 #include <cmath>
 #include <vector>
 #include <igl/voxel_grid.h>
+#include <igl/centroid.h>
 #include "inner_carving.h"
 #include "center_of_mass.h"
 #include "voxel_indices.h"
@@ -42,7 +43,9 @@ void inner_carving(
 
   Eigen::Vector3d CoM;
   double mass;
-  center_of_mass(MoV, MoF, density, CoM, mass);
+
+  igl::centroid(MoV, MoF, CoM, mass);
+  mass /= density;
 
   double energy = carving_energy(CoM, contact);
 
