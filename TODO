@@ -1,2 +1,7 @@
 // in mass.cpp, what is the behaviour if the inner mesh is empty, I want it to return the mass of solely the outer mesh.
 // fix center_of_mass as it used to assumes faces of MiF are oriented s.t. normals point inward.
+
+
+// Dec 19:
+//  Maybe include reference for where cube.obj and sphere.obj come from.
+//  Maybe add a test suite for the center of mass of a (maybe unit) sphere

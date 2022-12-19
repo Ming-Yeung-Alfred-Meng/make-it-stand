@@ -11,6 +11,6 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_executable(Google_Tests_run example_test.cpp)
+add_executable(Google_Tests_run center_of_mass_test.cpp inner_carving_test.cpp)
 target_link_libraries(Google_Tests_run core)
 target_link_libraries(Google_Tests_run gtest gtest_main)
