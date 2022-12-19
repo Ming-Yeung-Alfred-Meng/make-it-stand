@@ -2,6 +2,8 @@
 #define CURVATURE_CENTER_OF_MASS_H
 #include <Eigen/Core>
 
+
+// DEPRECATED. Use igl::centroid instead.
 // Compute the center of mass of the mesh defined
 // collectively by outer mash (MoV, MoF) and inner
 // mesh (MiV, MiF), according the equation 4 of the
