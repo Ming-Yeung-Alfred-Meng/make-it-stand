@@ -4,7 +4,7 @@
 #include "center_of_mass.h"
 
 
-// Center of mass of a cube with center (0, 0, 0)
+// Center of mass of a cube with min max corner (-20, -20, 0) and (0, 0, 20), respectively.
 TEST(ExampleTest, ExampleTestName) {
   Eigen::MatrixXd V;
   Eigen::MatrixXi F;
