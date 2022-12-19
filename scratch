@@ -267,3 +267,25 @@ main
 
   //  viewer.data().set_mesh(MiV,MiF);
   //  viewer.data().set_colors(yellow);
+
+
+  center_of_mass_test.cpp
+    TEST(test_suite_name, test_name) {
+      Eigen::MatrixXd V;
+      Eigen::MatrixXi F;
+      Eigen::Vector3d centroid;
+      double volume;
+
+      igl::readOBJ("../../data/hollow_cube2.obj", V, F);
+      igl::centroid(V, F, centroid, volume);
+
+      EXPECT_EQ(centroid, Eigen::Vector3d::Zero());
+      EXPECT_EQ(volume, -1);
+    }
+
+    TEST_F(CenterOfMassOuterInnerMeshTest, DoubleSphere) {
+      SetUp("../../data/double_sphere.obj", 3);
+
+      EXPECT_TRUE(CoM.isApprox(centroid));
+      EXPECT_NEAR(mass, density * volume, 1e-10);
+    }

@@ -5,3 +5,5 @@
 // Dec 19:
 //  Maybe include reference for where cube.obj and sphere.obj come from.
 //  Maybe add a test suite for the center of mass of a (maybe unit) sphere
+//  Do not use center_of_mass() in center_of_mass_grad()
+//  Revise the gradient descent computation
