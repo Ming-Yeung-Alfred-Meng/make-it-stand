@@ -2,7 +2,6 @@
 #include <cmath>
 #include "gtest/gtest.h"
 #include <igl/opengl/glfw/Viewer.h>
-#include <igl/readOBJ.h>
 #include <cube.h>
 
 
