@@ -8,7 +8,7 @@
 //   grid  #grid by 3 voxel centers of a regular voxel grid
 //   side  3 row vector, where side[i] is the number of cells of the ith side
 //   in_out  in_out[i] = 1 if the ith cell in grid is outside the voxel-like mesh,
-//           in_out[i] = -1 if the it is inside.
+//           in_out[i] = -1 if it is inside.
 //
 // Outputs:
 //   V  #V by 3 list of vertex positions

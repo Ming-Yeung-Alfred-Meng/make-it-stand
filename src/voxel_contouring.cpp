@@ -126,13 +126,13 @@ void single_direction_quads(
                 if (num_V + 1 >= quad_V.rows()) { quad_V.conservativeResize(2 * num_V + 1, quad_V.cols()); }
                 quad_V.row(num_V) = grid.row(linear_index(side, std::get<0>(key), std::get<1>(key), std::get<2>(key)));
 
-                std::cerr << "New vertex's corresponding voxel center:\n" << quad_V.row(num_V) << std::endl;
+//                std::cerr << "New vertex's corresponding voxel center:\n" << quad_V.row(num_V) << std::endl;
 
                 quad_V(num_V, 0) -= half_step;
                 quad_V(num_V, 1) -= half_step;
                 quad_V(num_V, 2) -= half_step;
 
-                std::cerr << "New vertex added:\n" << quad_V.row(num_V) << std::endl;
+//                std::cerr << "New vertex added:\n" << quad_V.row(num_V) << std::endl;
 
                 gridV2V[key] = num_V;
                 quad_F(num_F, u) = num_V;
