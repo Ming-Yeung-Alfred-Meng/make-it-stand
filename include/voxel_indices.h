@@ -8,7 +8,7 @@
 //   MoV #V by 3 list of deformed vertex positions
 //   MoF #F by 3 list of face indices into rows of V
 //   grid  #grid by 3 matrix of voxel grid centers
-//   min  minimum distance from voxel center to mesh surface
+//   min  minimum distance from voxel center to mesh surface from the inside
 //
 // Output:
 //  indices (into grid) of voxel centers within the mesh.

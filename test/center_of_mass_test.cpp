@@ -3,6 +3,7 @@
 #include "igl/readOBJ.h"
 #include "center_of_mass.h"
 
+
 class CenterOfMassOuterMeshOnlyTest : public ::testing::Test {
 protected:
     void SetUp(const std::string & filename, const double d) {

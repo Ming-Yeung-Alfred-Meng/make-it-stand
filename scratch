@@ -289,3 +289,27 @@ main
       EXPECT_TRUE(CoM.isApprox(centroid));
       EXPECT_NEAR(mass, density * volume, 1e-10);
     }
+
+
+cube_test
+
+// generate random voxel center
+// generate randome length
+
+// test for the diagonal:
+// take the min and max corner of the bounding cube
+// take the diagonal
+// test if min + half diagonal equals the center
+// test if the angle from the xy plane is correct
+// test if the length of the diagonal is correct using pythagorean theoream
+// display the cube to check for normal
+
+helper_g_test
+// use three random 3d vectors
+// hand compute g value
+// compare against output of helper_g
+
+
+linear_index_test
+// generate a random side, preferably three different side lengths
+// generate random 3d integral point inside the 3d structure
