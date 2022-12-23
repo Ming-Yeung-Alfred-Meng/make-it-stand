@@ -4,6 +4,10 @@
 #include <gtest/gtest.h>
 #include <inner_carving.h>
 
+
+
+
+
 class DistanceFromPlaneTest : public ::testing::Test {
 protected:
     void SetUp(const Eigen::Vector3d & query) {
@@ -107,50 +111,50 @@ TEST_F(SortComparatorTest, Sort) {
 }
 
 
-TEST(BuildInOutTest, Empty) {
+TEST(BuildCarvedTest, Empty) {
   std::vector<int> indices;
-  int in_out[5];
-  build_in_out(indices.begin(), indices.end(), 5, in_out);
-  for (int i : in_out) {
-    EXPECT_TRUE(in_out[i] == 1);
+  int mask[5];
+  build_carved(indices.begin(), indices.end(), 5, mask);
+  for (int i : mask) {
+    EXPECT_TRUE(mask[i] == 1);
   }
 }
 
 
-TEST(BuildInOutTest, FirstAndLast) {
+TEST(BuildCarvedTest, FirstAndLast) {
   std::vector<int> indices;
   indices.emplace_back(0);
   indices.emplace_back(4);
-  int in_out[5];
-  build_in_out(indices.begin(), indices.end(), 5, in_out);
+  int mask[5];
+  build_carved(indices.begin(), indices.end(), 5, mask);
 
-  EXPECT_TRUE(in_out[0] == -1);
-  EXPECT_TRUE(in_out[4] == -1);
+  EXPECT_TRUE(mask[0] == -1);
+  EXPECT_TRUE(mask[4] == -1);
 
   for (int i = 1; i < 4; ++i) {
-    EXPECT_TRUE(in_out[i] == 1);
+    EXPECT_TRUE(mask[i] == 1);
   }
 }
 
 
-TEST(BuildInOutTest, Arbitrary) {
+TEST(BuildCarvedTest, Arbitrary) {
   std::vector<int> indices;
   indices.emplace_back(5);
   indices.emplace_back(7);
   indices.emplace_back(2);
   indices.emplace_back(3);
   indices.emplace_back(6);
-  int in_out[10];
-  build_in_out(indices.begin(), indices.end(), 10, in_out);
+  int mask[10];
+  build_carved(indices.begin(), indices.end(), 10, mask);
 
-  EXPECT_TRUE(in_out[0] == 1);
-  EXPECT_TRUE(in_out[1] == 1);
-  EXPECT_TRUE(in_out[2] == -1);
-  EXPECT_TRUE(in_out[3] == -1);
-  EXPECT_TRUE(in_out[4] == 1);
-  EXPECT_TRUE(in_out[5] == -1);
-  EXPECT_TRUE(in_out[6] == -1);
-  EXPECT_TRUE(in_out[7] == -1);
-  EXPECT_TRUE(in_out[8] == 1);
-  EXPECT_TRUE(in_out[9] == 1);
+  EXPECT_TRUE(mask[0] == 1);
+  EXPECT_TRUE(mask[1] == 1);
+  EXPECT_TRUE(mask[2] == -1);
+  EXPECT_TRUE(mask[3] == -1);
+  EXPECT_TRUE(mask[4] == 1);
+  EXPECT_TRUE(mask[5] == -1);
+  EXPECT_TRUE(mask[6] == -1);
+  EXPECT_TRUE(mask[7] == -1);
+  EXPECT_TRUE(mask[8] == 1);
+  EXPECT_TRUE(mask[9] == 1);
 }

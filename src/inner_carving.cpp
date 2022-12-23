@@ -94,10 +94,10 @@ void inner_carving(
     }
   } while (min_energy < original_energy && optimal_j - original_j > min_carve);
 
-  int in_out[grid.rows()];
-  build_in_out(indices.begin(), indices.begin() + optimal_j, grid.rows(), in_out);
+  int carved_mask[grid.rows()];
+  build_carved(indices.begin(), indices.begin() + optimal_j, grid.rows(), carved_mask);
 
-  voxel_contouring(grid, side, in_out, MiV, MiF);
+  voxel_contouring(grid, side, carved_mask, MiV, MiF);
 }
 
 
@@ -167,7 +167,6 @@ double reduce_mass_by_a_voxel(
 }
 
 
-
 // Compute relative (see note below) distance from a query point to a plane.
 // The plane is defined to intersect "contact", and is perpendicular to the
 // vector obtained by projecting CoM - contact onto the ground (the xy-plane).
@@ -194,16 +193,26 @@ double distance_from_plane(
 }
 
 
-// Should I pass in the iterators by reference of by value?
-void build_in_out(
+// Build an array of binary mask indicating which voxels are
+// carved.
+//
+// Inputs:
+//   begin  start of the vector containing indices of carved voxels.
+//   end  std::end() of the vector
+//   size  size of the vector
+// Output:
+//   mask  binary mask s.t. mask[i] = 1 if the ith voxel is not carved
+//                          mask[i] = -1 if it is carved.
+//
+void build_carved(
   const std::vector<int>::iterator &begin,
   const std::vector<int>::iterator &end,
   const long size,
-  int in_out[])
+  int mask[])
 {
-  std::fill_n(in_out, size, 1);
+  std::fill_n(mask, size, 1);
 
   for (std::vector<int>::iterator i = begin; i < end; ++i) {
-    in_out[*i] = -1;
+    mask[*i] = -1;
   }
 }
