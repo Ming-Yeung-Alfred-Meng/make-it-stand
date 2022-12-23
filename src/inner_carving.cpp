@@ -157,7 +157,16 @@ void update_center_of_mass(
 }
 
 
-
+// Compute new mass of the object after carving a voxel.
+//
+// Inputs:
+//   old_mass  old mass of the object
+//   density  density of the object
+//   length  length of a side of the (regular) voxel
+//
+// Return:
+//   new mass of the object carving a voxel.
+//
 double reduce_mass_by_a_voxel(
   const double old_mass,
   const double density,
