@@ -1,23 +1,13 @@
 #include <iostream>
 #include <algorithm>
-#include <cmath>
 #include <vector>
 #include <igl/voxel_grid.h>
 #include <igl/centroid.h>
 #include "inner_carving.h"
-#include "center_of_mass.h"
 #include "voxel_indices.h"
 #include "voxel_contouring.h"
 #include "cube.h"
 #include "face_contribution_to_com.h"
-
-
-double carving_energy(const Eigen::Vector3d &CoM, const Eigen::Vector3d &contact);
-void update_center_of_mass(const Eigen::Vector3d &center, const double length, const double old_mass, const double new_mass, const double density, Eigen::Vector3d &CoM);
-double reduce_mass_by_a_voxel(const double old_mass, const double density, const double length);
-void build_in_out(const std::vector<int>::iterator &begin, const std::vector<int>::iterator &end, const long size, int in_out[]);
-std::function<bool (int, int)> generate_comp(const Eigen::MatrixXd &grid, const Eigen::Vector3d &contact, const Eigen::Vector3d &CoM);
-double distance_from_plane(const Eigen::Vector3d &query, const Eigen::Vector3d &contact, const Eigen::Vector3d &CoM);
 
 
 void inner_carving(
@@ -52,7 +42,12 @@ void inner_carving(
   std::vector<int> indices;
   voxel_indices(MoV, MoF, grid, thickness, indices);
 
-  std::sort(indices.begin(), indices.end(), generate_comp(grid, contact, CoM));
+  std::function<bool (int, int)> comp = [&](int i, int j)
+  {
+    return distance_from_plane(grid.row(i), contact, CoM)
+           > distance_from_plane(grid.row(j), contact, CoM);
+  };
+  std::sort(indices.begin(), indices.end(), comp);
 
   double original_mass; // What should I initialize them to?
   double optimal_mass = mass;
@@ -95,7 +90,7 @@ void inner_carving(
 //    assert (optimal_j < indices.size() - 1 && "The entire mesh is now hollow!"); // Not sure if this is actually useful.
     std::cerr << (optimal_j < indices.size() - 1) << std::endl;
     if (optimal_j < ((int) indices.size()) - 1) {
-      std::sort(indices.begin() + optimal_j + 1, indices.end(), generate_comp(grid, contact, optimal_CoM));
+      std::sort(indices.begin() + optimal_j + 1, indices.end(), comp);
     }
   } while (min_energy < original_energy && optimal_j - original_j > min_carve);
 
@@ -173,8 +168,21 @@ double reduce_mass_by_a_voxel(
 
 
 
-// Compute relative distance from grid.row(index) to the plane.
-// Relative because the normal of the plane does not have unit length.
+// Compute relative (see note below) distance from a query point to a plane.
+// The plane is defined to intersect "contact", and is perpendicular to the
+// vector obtained by projecting CoM - contact onto the ground (the xy-plane).
+//
+// Inputs:
+//   query  3D query point
+//   contact  3D contact point of the object with the ground
+//   CoM  3D current center of mass of the object
+//
+// Output:
+//   relative distance from the query to the plane
+//
+// Note: all computed distances are relative because they are scaled by the length of
+// the projection of CoM - contact onto the ground.
+//
 double distance_from_plane(
   const Eigen::Vector3d &query,
   const Eigen::Vector3d &contact,
@@ -182,31 +190,7 @@ double distance_from_plane(
 {
   Eigen::Vector3d normal = CoM - contact;
   normal(2) = 0;
-//  return (grid.row(index).transpose() - contact).dot(normal);
   return (query - contact).dot(normal);
-}
-
-
-
-// Return a function that compares the distance from two voxels to a plane.
-// The function returns true iff the first voxel is closer to the plane.
-//
-// Inputs:
-//   grid  #grid by 3 list of voxel centers
-//   contact  3D vector that is on the plane
-//   CoM  3D vector s.t. (CoM - contact) projected on the ground is normal to the plane
-//
-// Output:
-//   comparator
-std::function<bool (int, int)> generate_comp(
-  const Eigen::MatrixXd &grid,
-  const Eigen::Vector3d &contact,
-  const Eigen::Vector3d &CoM)
-{
-  return [&](int i, int j)
-    { return distance_from_plane(grid.row(i), contact, CoM)
-             > distance_from_plane(grid.row(j), contact, CoM);
-    };
 }
 
 
@@ -219,7 +203,7 @@ void build_in_out(
 {
   std::fill_n(in_out, size, 1);
 
-  for (std::vector<int>::iterator i = begin; i != end + 1; ++i) {
+  for (std::vector<int>::iterator i = begin; i < end; ++i) {
     in_out[*i] = -1;
   }
 }
