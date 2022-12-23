@@ -1,0 +1,11 @@
+Dec 23 2022
+  Although there did not seem to be a problem in the early versions of inner_carving.cpp, using a function to output a
+  custom lambda expression seemed to be susceptible to bugs in general. Data are passed into the generator function by
+  reference, then captured by the lambda expression by reference. If the data persists throughout the course of the
+  usage of the lambda expression, I do not think there would be a problem. But, if the data are created in the generator
+  function instead of passed into the generator function, I conjecture that the lambda expression no longer points to
+  valid memory location, leading to bugs.
+
+  Maybe there is still room for optimization of the comparing process in the sorting of voxels. Maybe each voxel's
+  signed distance can be precomputed and stored with the voxel 3D location or index in a tuple, then sorting the tuples
+  suffices.
