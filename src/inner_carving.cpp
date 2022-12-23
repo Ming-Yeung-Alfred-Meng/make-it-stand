@@ -101,18 +101,6 @@ void inner_carving(
 }
 
 
-// Compute the E_CoM from paper.
-//
-// For simplicity, assume the negative z-direction
-// is the gravity direction.
-//
-// Inputs:
-//   CoM  center of mass
-//   contact  mesh's point of contact with the ground.
-//            For simplicity, assumed to be the vertex
-//            with the smallest z-value, or is given by user.
-// Return:
-//   E_CoM
 double carving_energy(
   const Eigen::Vector3d &CoM,
   const Eigen::Vector3d &contact)
@@ -122,19 +110,6 @@ double carving_energy(
 }
 
 
-// Update the center of mass after carving one voxel.
-// Assumes the center of mass, CoM, passed into the
-// function is valid.
-//
-// Inputs:
-//   center  3D position of the voxel's center
-//   length  length of each side of the (regular) voxel
-//   old_mass  mass of the mesh before carving the voxel
-//   new_mass  mass of the mesh after carving the voxel
-//   density  density of the mesh
-//
-// Output:
-//   CoM  updated center of mass
 void update_center_of_mass(
   const Eigen::Vector3d &center,
   const double length,
@@ -157,16 +132,6 @@ void update_center_of_mass(
 }
 
 
-// Compute new mass of the object after carving a voxel.
-//
-// Inputs:
-//   old_mass  old mass of the object
-//   density  density of the object
-//   length  length of a side of the (regular) voxel
-//
-// Return:
-//   new mass of the object carving a voxel.
-//
 double reduce_mass_by_a_voxel(
   const double old_mass,
   const double density,
@@ -176,21 +141,6 @@ double reduce_mass_by_a_voxel(
 }
 
 
-// Compute relative (see note below) distance from a query point to a plane.
-// The plane is defined to intersect "contact", and is perpendicular to the
-// vector obtained by projecting CoM - contact onto the ground (the xy-plane).
-//
-// Inputs:
-//   query  3D query point
-//   contact  3D contact point of the object with the ground
-//   CoM  3D current center of mass of the object
-//
-// Output:
-//   relative distance from the query to the plane
-//
-// Note: all computed distances are relative because they are scaled by the length of
-// the projection of CoM - contact onto the ground.
-//
 double distance_from_plane(
   const Eigen::Vector3d &query,
   const Eigen::Vector3d &contact,
@@ -202,17 +152,6 @@ double distance_from_plane(
 }
 
 
-// Build an array of binary mask indicating which voxels are
-// carved.
-//
-// Inputs:
-//   begin  start of the vector containing indices of carved voxels.
-//   end  std::end() of the vector
-//   size  size of the vector
-// Output:
-//   mask  binary mask s.t. mask[i] = 1 if the ith voxel is not carved
-//                          mask[i] = -1 if it is carved.
-//
 void build_carved(
   const std::vector<int>::iterator &begin,
   const std::vector<int>::iterator &end,
