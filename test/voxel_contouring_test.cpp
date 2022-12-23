@@ -10,7 +10,7 @@
 
 class VoxelContouringTest : public ::testing::Test {
 protected:
-    void SetUp(int in_out[]) {
+    void SetUp(const int in_out[]) {
       igl::voxel_grid(Eigen::AlignedBox<double, 3>(Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(3, 3, 3)), 4, 0, grid, side);
       voxel_contouring(grid, side, in_out, V, F);
       viewer.data().set_mesh(V, F);
