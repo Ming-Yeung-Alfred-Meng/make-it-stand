@@ -5,7 +5,9 @@
 #include <inner_carving.h>
 
 
-
+TEST(ReduceMassByAVoxelTest, Arbitrary) {
+  EXPECT_DOUBLE_EQ(reduce_mass_by_a_voxel(3121.331, 13.107, 4), 2282.483);
+}
 
 
 class DistanceFromPlaneTest : public ::testing::Test {
