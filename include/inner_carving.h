@@ -22,6 +22,7 @@
 void inner_carving(
   const Eigen::MatrixXd &MoV,
   const Eigen::MatrixXi &MoF,
+  const Eigen::Vector3d &down,
   const Eigen::Vector3d &contact,
   int voxel_scale,
   int min_carve,
@@ -45,7 +46,7 @@ void inner_carving(
 // Return:
 //   E_CoM
 //
-double carving_energy(const Eigen::Vector3d &CoM, const Eigen::Vector3d &contact);
+double carving_energy(const Eigen::Vector3d &down, const Eigen::Vector3d &contact, const Eigen::Vector3d &CoM);
 
 
 // Update the center of mass after carving one voxel.
@@ -107,5 +108,7 @@ void build_carved(const std::vector<int>::iterator &begin, const std::vector<int
 //   mask  binary mask s.t. mask[i] = 1 if the ith voxel is not carved
 //                          mask[i] = -1 if it is carved.
 //
-double distance_from_plane(const Eigen::Vector3d &query, const Eigen::Vector3d &contact, const Eigen::Vector3d &CoM);
+double distance_from_plane(const Eigen::Vector3d &query, const Eigen::Vector3d &down, const Eigen::Vector3d &contact, const Eigen::Vector3d &CoM);
+
+void floor_projection(const Eigen::Vector3d & v, const Eigen::Vector3d & down, Eigen::Vector3d & proj);
 #endif //CURVATURE_INNER_CARVING_H
