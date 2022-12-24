@@ -13,6 +13,7 @@
 void inner_carving(
   const Eigen::MatrixXd &MoV,
   const Eigen::MatrixXi &MoF,
+  const Eigen::Vector3d &down,
   const Eigen::Vector3d &contact,
   const int voxel_scale,
   const int min_carve,
@@ -21,13 +22,13 @@ void inner_carving(
   Eigen::MatrixXd &MiV,
   Eigen::MatrixXi &MiF)
 {
-  std::cerr << "MoV.rows() & MoV.cols():\n" << MoV.rows() << " & " << MoV.cols() << std::endl;
+//  std::cerr << "MoV.rows() & MoV.cols():\n" << MoV.rows() << " & " << MoV.cols() << std::endl;
 
   Eigen::MatrixXd grid;
   Eigen::RowVector3i side;
   igl::voxel_grid(MoV, 0, voxel_scale, 1, grid, side);
 
-  std::cerr << "grid:\n" << grid << std::endl;
+//  std::cerr << "grid:\n" << grid << std::endl;
 
   const double length = grid(1, 0) - grid(0, 0);
 
@@ -37,15 +38,15 @@ void inner_carving(
   igl::centroid(MoV, MoF, CoM, mass);
   mass /= density;
 
-  double energy = carving_energy(CoM, contact);
+  double energy = carving_energy(down, contact, CoM);
 
   std::vector<int> indices;
   voxel_indices(MoV, MoF, grid, thickness, indices);
 
   std::function<bool (int, int)> comp = [&](int i, int j)
   {
-    return distance_from_plane(grid.row(i), contact, CoM)
-           > distance_from_plane(grid.row(j), contact, CoM);
+    return distance_from_plane(grid.row(i), down, contact, CoM)
+           > distance_from_plane(grid.row(j), down, contact, CoM);
   };
   std::sort(indices.begin(), indices.end(), comp);
 
@@ -67,15 +68,15 @@ void inner_carving(
     CoM = optimal_CoM;
     original_j = optimal_j; // must be here
 
-    while (j < indices.size() && distance_from_plane(grid.row(indices[j]), contact, original_CoM) > 0) {
+    while (j < indices.size() && distance_from_plane(grid.row(indices[j]), down, contact, original_CoM) > 0) {
 
-      std::cerr << "Current voxel being carved:\n" << grid.row(indices[j]) << std::endl;
+//      std::cerr << "Current voxel being carved:\n" << grid.row(indices[j]) << std::endl;
 
       original_mass = mass;
 
       mass = reduce_mass_by_a_voxel(original_mass, density, length);
       update_center_of_mass(grid.row(indices[j]), length, original_mass, mass, density, CoM);
-      energy = carving_energy(CoM, contact);
+      energy = carving_energy(down, contact, CoM);
 
       if (energy < min_energy) {
         optimal_mass = mass;
@@ -88,7 +89,7 @@ void inner_carving(
 
 //    assert (j < indices.size() && "The plane is outside the mesh!"); // Not sure if this is actually useful.
 //    assert (optimal_j < indices.size() - 1 && "The entire mesh is now hollow!"); // Not sure if this is actually useful.
-    std::cerr << (optimal_j < indices.size() - 1) << std::endl;
+//    std::cerr << (optimal_j < indices.size() - 1) << std::endl;
     if (optimal_j < ((int) indices.size()) - 1) {
       std::sort(indices.begin() + optimal_j + 1, indices.end(), comp);
     }
@@ -102,11 +103,13 @@ void inner_carving(
 
 
 double carving_energy(
-  const Eigen::Vector3d &CoM,
-  const Eigen::Vector3d &contact)
+  const Eigen::Vector3d &down,
+  const Eigen::Vector3d &contact,
+  const Eigen::Vector3d &CoM)
 {
-  Eigen::Vector3d diff = CoM - contact;
-  return 0.5 * (diff(0) * diff(0) + diff(1) * diff(1));
+  Eigen::Vector3d normal;
+  floor_projection(CoM - contact, down, normal);
+  return normal.squaredNorm();
 }
 
 
@@ -140,11 +143,12 @@ double reduce_mass_by_a_voxel(
 
 double distance_from_plane(
   const Eigen::Vector3d &query,
+  const Eigen::Vector3d &down,
   const Eigen::Vector3d &contact,
   const Eigen::Vector3d &CoM)
 {
-  Eigen::Vector3d normal = CoM - contact;
-  normal(2) = 0;
+  Eigen::Vector3d normal;
+  floor_projection(CoM - contact, down, normal);
   return (query - contact).dot(normal);
 }
 
@@ -160,4 +164,13 @@ void build_carved(
   for (std::vector<int>::iterator i = begin; i < end; ++i) {
     mask[*i] = -1;
   }
+}
+
+
+void floor_projection(
+  const Eigen::Vector3d & v,
+  const Eigen::Vector3d & down,
+  Eigen::Vector3d & proj)
+{
+  proj = v - (v.dot(down) / down.squaredNorm()) * down;
 }
