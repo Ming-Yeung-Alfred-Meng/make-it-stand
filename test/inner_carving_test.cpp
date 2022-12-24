@@ -7,7 +7,16 @@
 #include <inner_carving.h>
 
 
-TEST(UpdateCenterOfMass, Cube) {
+TEST(CarvingEnergyTest, Arbitrary) {
+  Eigen::Vector3d CoM(27.383, 4.684, 14.363);
+  Eigen::Vector3d contact(48.958, 74.341, 97.639);
+  Eigen::Vector3d proj = CoM - contact;
+  proj(2) = 0;
+  EXPECT_DOUBLE_EQ(carving_energy(Eigen::Vector3d(0, 0, -1), contact, CoM), proj.squaredNorm());
+}
+
+
+TEST(UpdateCenterOfMassTest, Cube) {
   Eigen::MatrixXd MoV;
   Eigen::MatrixXi MoF;
   Eigen::MatrixXd MiV;
@@ -48,7 +57,7 @@ TEST(ReduceMassByAVoxelTest, Arbitrary) {
 class DistanceFromPlaneTest : public ::testing::Test {
 protected:
     void SetUp(const Eigen::Vector3d & query) {
-      distance = distance_from_plane(query, Eigen::Vector3d(1, 1, 0), Eigen::Vector3d(2, 2, 0));
+      distance = distance_from_plane(query, Eigen::Vector3d(0, 0, -1), Eigen::Vector3d(1, 1, 0), Eigen::Vector3d(2, 2, 0));
     }
 
     double distance {};
@@ -88,8 +97,8 @@ protected:
 
       comp = [&](int i, int j)
       {
-          return distance_from_plane(queries.row(i), contact, CoM)
-                 > distance_from_plane(queries.row(j), contact, CoM);
+          return distance_from_plane(queries.row(i), Eigen::Vector3d(0, 0, -1), contact, CoM)
+                 > distance_from_plane(queries.row(j), Eigen::Vector3d(0, 0, -1), contact, CoM);
       };
 
       indices.resize(6);
