@@ -23,10 +23,10 @@ void voxel_indices(
     }
   }
 
-  std::cerr << "S:\n" << S << std::endl;
-  std::cerr << "indices:\n" << std::endl;
-  for (auto i : indices) {
-    std::cerr << i << std::endl;
-  }
+//  std::cerr << "S:\n" << S << std::endl;
+//  std::cerr << "indices:\n" << std::endl;
+//  for (auto i : indices) {
+//    std::cerr << i << std::endl;
+//  }
 
 }
