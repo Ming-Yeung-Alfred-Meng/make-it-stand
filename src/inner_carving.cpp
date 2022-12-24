@@ -122,13 +122,10 @@ void update_center_of_mass(
   Eigen::MatrixXi voxel_F;
   cube(center, length, voxel_V, voxel_F);
 
-  CoM *= (24 * old_mass) / density;
-
   Eigen::Vector3d con;
   face_contribution_to_com(voxel_V, voxel_F, con);
-  CoM -= con;
 
-  CoM *= density / (24 * new_mass);
+  CoM = CoM * old_mass / new_mass - con * density / (24 * new_mass);
 }
 
 
