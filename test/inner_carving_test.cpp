@@ -2,7 +2,42 @@
 #include <numeric>
 #include <algorithm>
 #include <gtest/gtest.h>
+#include <igl/readOBJ.h>
+#include <igl/centroid.h>
 #include <inner_carving.h>
+
+
+TEST(UpdateCenterOfMass, Cube) {
+  Eigen::MatrixXd MoV;
+  Eigen::MatrixXi MoF;
+  Eigen::MatrixXd MiV;
+  Eigen::MatrixXi MiF;
+  Eigen::MatrixXd V;
+  Eigen::MatrixXi F;
+  Eigen::Vector3d actualCoM;
+  Eigen::Vector3d expectedCoM;
+  Eigen::Vector3d voxel_center;
+  double old_mass;
+  double voxel_mass;
+  const double density = 6;
+  const double length = 5;
+
+  igl::readOBJ("../../data/cube2.obj", MiV, MiF);
+  igl::readOBJ("../../data/cube3.obj", MoV, MoF);
+  igl::readOBJ("../../data/cube4.obj", V, F);
+
+  igl::centroid(MiV, MiF, voxel_center, voxel_mass);
+  voxel_mass *= density;
+
+  igl::centroid(MoV, MoF, actualCoM, old_mass);
+  old_mass *= density;
+
+  update_center_of_mass(voxel_center, length, old_mass, old_mass - voxel_mass, density, actualCoM);
+
+  igl::centroid(V, F, expectedCoM);
+  EXPECT_TRUE(actualCoM.isApprox(expectedCoM, 1e-5));
+  // The actual and the expected are not very close due to numerical errors.
+}
 
 
 TEST(ReduceMassByAVoxelTest, Arbitrary) {

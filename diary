@@ -9,3 +9,6 @@ Dec 23 2022
   Maybe there is still room for optimization of the comparing process in the sorting of voxels. Maybe each voxel's
   signed distance can be precomputed and stored with the voxel 3D location or index in a tuple, then sorting the tuples
   suffices.
+
+  update_center_of_mass(): The numerical imprecision may be concerning. The largest component-wise error detected when
+  comparing its result against that of igl::centroid's was 0.00013.
