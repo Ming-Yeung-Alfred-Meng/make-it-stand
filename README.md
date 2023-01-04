@@ -4,7 +4,7 @@ I plan to complete this project by January 9th 2023.
 
 ## A small showcase of progress
 
-![](images/inner_mesh.png)
+![](images/outer_mesh.png)![](images/inner_mesh.png)
 
 ## What is done
 
