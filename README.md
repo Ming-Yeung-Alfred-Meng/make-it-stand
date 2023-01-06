@@ -34,7 +34,7 @@ $$C = ||d - \frac{d \cdot g}{||g||^2}g||^2$$
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Where $g$ is the direction of gravitational pull.
 
-4. Iteratively identify indicies of voxels in the voxel grid that are within the outer mesh by at least the minimum thickness. 
+4. Iteratively identify indicies of voxels in the voxel grid that are within the outer mesh by at least the minimum thickness. igl::signed_distance() can use fast winding number to check if a point is inside a mesh and calculate its distance from it. We only consider voxel centers that has a distance $s$ outputed by igl::signed_distance() s.t. $s \leq 0$ and $|s| \geq \text{minimum thickness}$.
 
 5. 
 Sorting
@@ -53,6 +53,7 @@ Construct inner mesh
 2. Density seems to be unnecessary.
 3. Storing the voxel grid as a matrix of voxel centers may not be the best way to do so.
 4. Deformation has yet to be completed, as calculating bounded biharmonic weights for the voxel grid has yet to be compeleted.
+5. The authors suggest that there should be no floating components, but my implementation results in them.
 
 ## A small showcase of progress
 The followings are the outer mesh (left) and the inner void (right) after running the inner carving algorithm. The contact point between the figure and the ground is selected so that it can balance on its right foot.
