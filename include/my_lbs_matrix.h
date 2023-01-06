@@ -3,7 +3,7 @@
 #include <Eigen/Core>
 
 // Compute lbs matrix M s.t. V' = M * H,
-// where V' is a vector vertically stacks
+// where V' is a vector of vertically stacked
 // deformed 3d vertex positions,
 // M is a #V' by 4 * #N matrix containing
 // weights and vertices before deformation, and H
