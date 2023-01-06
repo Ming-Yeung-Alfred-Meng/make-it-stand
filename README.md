@@ -24,16 +24,35 @@ The algorithm shifts the center of mass of the object a given triangle mesh repr
 5. Density of the 3D printing material.
 
 #### Steps
+1. Use igl::voxel_grid() to construct a voxel grid surrounding the outer mesh. Include a padding of at least one voxel, as it simplifies the later step of constructing the inner mesh. I used the overload of igl::voxel_grid() that takes the vertices of the outer mesh as an input. It fixes the padding count to be 1, so setting the bounding box offset to be 0 creates an adequate voxel grid.
+
+2. Compute the center of mass and mass of the object using igl::centroid()'s outputs of centroid and volume, as the assumption that input objects have uniform density ensures the equality of centroid and center of mass, and the density is available.
+ 
+3. Compute the initial value of the energy concerned with inner carving, which we shall call the carving energy $C$, and it is in general the squared norm of the horizonal component of the vector $d = \text{center of mass} - \text{contact}$:
+
+$$C = ||d - \frac{d \cdot g}{||g||^2}g||^2$$
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Where $g$ is the direction of gravitational pull.
+
+4. Iteratively identify indicies of voxels in the voxel grid that are within the outer mesh by at least the minimum thickness. 
+
+5. 
+Sorting
+Find the optimal sequence of voxels
+Construct inner mesh
 1. 
 
 
 ### Deformation
 
 ### My Implementation v.s. The Authors' Impelementation
-
+1. The authors' implementation has two balancing mode: 1) the standing mode and 2) the suspension mode, while mine only implemented the standing mode.
+2. 
 ### Known Limitations of My Implementation
 1. The ideal way of measuring the minimum distance between the outer mesh and the inner mesh would be to measure from the outer mesh to the corners of the voxels.
 2. Density seems to be unnecessary.
+3. Storing the voxel grid as a matrix of voxel centers may not be the best way to do so.
+4. Deformation has yet to be completed, as calculating bounded biharmonic weights for the voxel grid has yet to be compeleted.
 
 ## A small showcase of progress
 The followings are the outer mesh (left) and the inner void (right) after running the inner carving algorithm. The contact point between the figure and the ground is selected so that it can balance on its right foot.
