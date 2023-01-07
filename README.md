@@ -4,10 +4,6 @@
 
 The algorithm shifts the center of mass of the object a given triangle mesh represents, so that it balances without easily toppling after fabrication through 3D printing. It uses two methods: 1) inner carving and 2) deformation. Inner carving creates a mesh to represent an empty region to be constructed inside the input mesh. From now on, we shall call them the inner and outer mesh, respectively. Essentailly, inner carving shift the center of mass by redistributing mass. Deformation shifts it by deforming the inner and outer mesh via linear blend skinning using bounded biharmonic weights.
 
-## Assumption of the Algorithm
-
-1. The object has uniform densities.
-
 ## My Implementation
 
 ### Inner Carving
@@ -60,6 +56,7 @@ Notice that we visit all sorted voxels with non-negative signed distance implies
 
 #### A Small Showcase
 The followings are the outer mesh (left) and the inner void (right) after running the inner carving algorithm. The contact point between the figure and the ground is selected so that it can balance on its right foot.
+
 ![](images/outer_mesh.png)![](images/inner_mesh.png)
 
 ### Deformation
