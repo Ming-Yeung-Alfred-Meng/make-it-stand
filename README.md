@@ -58,6 +58,9 @@ Notice that we visit all sorted voxels with non-negative signed distance implies
 
 8. Construct the boundary of the voxels "carved", which is the inner mesh. First construct a mask that indicates which voxels are "carved", for example, at the $i$-th position, a value of $-1$ and $1$ indicates the $i$-th voxel is "carved" and not "carved", respectively. Loop through each dimension of the voxel grid, whenever there is a sign change from one voxel to the next, construct two triangle faces that form the square face between them.
 
+#### A Small Showcase
+![](images/outer_mesh.png)![](images/inner_mesh.png)
+
 ### Deformation
 
 ### My Implementation v.s. The Authors' Impelementation
@@ -75,22 +78,4 @@ Notice that we visit all sorted voxels with non-negative signed distance implies
 ## A small showcase of progress
 The followings are the outer mesh (left) and the inner void (right) after running the inner carving algorithm. The contact point between the figure and the ground is selected so that it can balance on its right foot.
 
-![](images/outer_mesh.png)![](images/inner_mesh.png)
 
-## What is done
-
-1. Inner carving: The iterative processing of finding the optimal inner void to empty, and the construction of its mesh have been implemented.
-  
-2. Matrices for deformation: The optimal deformation is obtained via gradient descent. Functions that build the matrices required for the computation have been implemented.
-
-3. Added GoogleTest Framework.
-
-## What is in progress
-  
-1. ~~Add GoogleTest framework: To conduce an easier and more complete debugging process.~~
-
-2. Bounded biharmonic weights(BBW) for voxel grid: BBW need to be computed for each voxel of a grid, from which meshes obtain their weights via interpolation for deformation.
-
-3. ~~Add test suites.~~
-
-Thanks.
