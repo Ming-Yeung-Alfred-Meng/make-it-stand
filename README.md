@@ -28,11 +28,9 @@ The algorithm shifts the center of mass of the object a given triangle mesh repr
 
 2. Compute the center of mass and mass of the object using igl::centroid()'s outputs of centroid and volume, as the assumption that input objects have uniform density ensures the equality of centroid and center of mass, and the density is available.
  
-3. Compute the initial value of the energy concerned with inner carving, which we shall call the carving energy $C$, and it is in general the squared norm of the horizonal component of the vector $d = \text{center of mass} - \text{contact}$:
+3. Compute the initial value of the energy concerned with inner carving, which we shall call the carving energy $C$, and it is the squared norm of the projection of the vector $d = \text{center of mass} - \text{contact}$ onto the subspace perpendicular to the direction of gravitational pull $g$:
 
 $$C = ||d - \frac{d \cdot g}{||g||^2}g||^2$$
-
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Where $g$ is the direction of gravitational pull.
 
 4. Iteratively identify indicies of voxels in the voxel grid that are within the outer mesh by at least the minimum thickness. igl::signed_distance() can use fast winding number to check if a point is inside a mesh and calculate its distance from it. We only consider voxel centers that has a distance $s$ outputed by igl::signed_distance() s.t. $s \leq 0$ and $|s| \geq \text{minimum thickness}$.
 
@@ -44,7 +42,7 @@ Those that are in the same region as the center of mass have positive signed dis
 
 Concretely, use std::sort() and a custom comparator that is a lambda function that takes two voxel indices as inputs, and compute and compare their signed distance from the imaginary plane. 
 
-6. The main loop of inner carving. Loop through the sorted voxels that have non-negative signed distance, and "carve" them one by one, i.e. update the center of mass and mass of the object at each iteration. Let $\rho$ be the density, and $CoM_old$ and $m_old$ be the center of mass and mass before "carving" the current voxel in consideraion, respectively, their counterparts after "carving", $CoM_{new}$ and $m_{new}$ are:
+6. The main loop of inner carving. Loop through the sorted voxels that have non-negative signed distance, and "carve" them one by one, i.e. update the center of mass and mass of the object at each iteration. Let $\rho$ be the density, and $CoM_{old}$ and $m_{old}$ be the center of mass and mass before "carving" the current voxel in consideraion, respectively, their counterparts after "carving", $CoM_{new}$ and $m_{new}$ are:
 
 $$CoM_{new} = \frac{CoM_{old} \cdot m_{old}}{m_{new}} - \frac{\rho}{24m_{new}}\sum_{f \in F} ((v_j - v_i) \times (v_k - v_i)) * g(v_i, v_j, v_k)$$
 
