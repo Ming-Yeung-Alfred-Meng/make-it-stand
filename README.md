@@ -63,6 +63,7 @@ Notice that we visit all sorted voxels with non-negative signed distance implies
 ### My Implementation v.s. The Authors' Impelementation
 1. The authors' implementation has two balancing mode: 1) the standing mode and 2) the suspension mode, while mine only implemented the standing mode.
 2. The authors' implementation does not sort voxels that have negative signed distance.
+3. In my implementation, normals of the inner mesh point inward, as the authors recommend, but in my particular implementation, I do not think it matters. This suggests that the authors' implementation may be more efficient in constructing the inner mesh.
 
 ### Known Limitations of My Implementation
 1. The ideal way of measuring the minimum distance between the outer mesh and the inner mesh would be to measure from the outer mesh to the corners of the voxels.
