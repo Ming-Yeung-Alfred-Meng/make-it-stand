@@ -79,3 +79,4 @@ In Progress...
 3. Storing the voxel grid as a matrix of voxel centers may not be the best way to do so.
 4. Deformation has yet to be completed, as calculating bounded biharmonic weights for the voxel grid has yet to be compeleted.
 5. The authors suggest that there should be no floating components, but my implementation results in them.
+6. update_center_of_mass() has a precision issue when compared against igl::centroid.
