@@ -65,6 +65,8 @@ The followings are the outer mesh (left) and the inner void (right) after runnin
 #### Gradient of Mass w.r.t.
 #### LBS Matrices
 #### Laplacian
+#### Gradient Descent
+In Progress...
 
 ### My Implementation v.s. The Authors' Impelementation
 1. The authors' implementation has two balancing mode: 1) the standing mode and 2) the suspension mode, while mine only implemented the standing mode.
