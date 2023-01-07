@@ -16,7 +16,7 @@ The algorithm shifts the center of mass of the object a given triangle mesh repr
 1. The outer mesh.
 2. Contact point between the outer mesh and the ground, on which the object should balances itself.
 
-#### Basic Settings
+#### Settings
 1. Direction of gravitational pull. In my case, it is the negative y-direction, as libigl's viewer uses the convention that the positive x- and y-direction are right and up, respectively.
 2. Size of a voxel. Smaller meshes require smaller voxels, and smaller voxels enable higher precision.
 3. Minimum number of voxels to carve in each iteration of inner carving
@@ -42,14 +42,21 @@ Those that are in the same region as the center of mass have positive signed dis
 
 Concretely, use std::sort() and a custom comparator that is a lambda function that takes two voxel indices as inputs, and compute and compare their signed distance from the imaginary plane. 
 
-6. The main loop of inner carving. Loop through the sorted voxels that have non-negative signed distance, and "carve" them one by one, i.e. update the center of mass and mass of the object at each iteration. Let $\rho$ be the density, and $CoM_{old}$ and $m_{old}$ be the center of mass and mass before "carving" the current voxel in consideraion, respectively, their counterparts after "carving", $CoM_{new}$ and $m_{new}$ are:
-
-$$CoM_{new} = \frac{CoM_{old} \cdot m_{old}}{m_{new}} - \frac{\rho}{24m_{new}}\sum_{f \in F} ((v_j - v_i) \times (v_k - v_i)) * g(v_i, v_j, v_k)$$
+6. Loop through the sorted voxels that have non-negative signed distance, and "carve" them one by one, i.e. update the center of mass and mass of the object at each iteration. Let $\rho$ be the density, and $CoM_{old}$ and $m_{old}$ be the center of mass and mass before "carving" the current voxel in consideration, respectively, their counterparts after "carving", $CoM_{new}$ and $m_{new}$ are:
 
 $$m_{new} = m_{old} - \rho \cdot l^3$$
 
-Find the optimal sequence of voxels
-Construct inner mesh
+$$CoM_{new} = \frac{CoM_{old} \cdot m_{old}}{m_{new}} - \frac{\rho}{24m_{new}}\sum_{f \in F} ((v_j - v_i) \times (v_k - v_i)) * g(v_i, v_j, v_k)$$
+
+$F$ is the set of triangle faces of the voxel, and $f = (v_i, v_j, v_k) \in F$.
+
+Calculate the new energy using $CoM_{new}$ at the end of each iteration. Record the index of the voxel which after being "carved" resulted in the minimum energy throughout this step. Also record the center of mass and mass after carving it. 
+
+Notice that we visit all sorted voxels with non-negative signed distance implies that we have not necessarily reached the minimum carving energy (for the current situation constructed based on the particular fixed imaginary plane) onced it stops decreasing. For why, imagine filling a glass with water. Its center of mass is the same when it is empty and when it is full, but it changes during the processing of filling, it must be that it does not change in a monotonic manner.
+
+7. Repeat step 5 with the recorded center of mass and mass from the previous step, and sort only the uncarved voxels, that is sort them with a new imaginary plane. Repeat step 6. Repeat this step (7) untill the carving energy (resulted from each of step 6) no longer decreases or the number of voxels "carved" is less than the minimun threshold specified in the settings above.
+
+8. Construct the boundary of the voxels "carved", which is the inner mesh. First construct a mask that indicates which voxels are "carved", for example, at the $i$-th position, a value of $-1$ and $1$ indicates the $i$-th voxel is "carved" and not "carved", respectively. Loop through each dimension of the voxel grid, whenever there is a sign change from one voxel to the next, construct two triangle faces that form the square face between them.
 
 ### Deformation
 
