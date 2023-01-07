@@ -44,7 +44,7 @@ $$m_{new} = m_{old} - \rho \cdot l^3$$
 
 $$CoM_{new} = \frac{CoM_{old} \cdot m_{old}}{m_{new}} - \frac{\rho}{24m_{new}}\sum_{f \in F} ((v_j - v_i) \times (v_k - v_i)) * g(v_i, v_j, v_k)$$
 
-$F$ is the set of triangle faces of the voxel, and $f = (v_i, v_j, v_k) \in F$.
+$F$ is the set of triangle faces of the voxel, and $f = (v_i, v_j, v_k) \in F$. * is element-wise multiplication, and please refer to page 3 of the paper for defintion of the function $g()$.
 
 Calculate the new energy using $CoM_{new}$ at the end of each iteration. Record the index of the voxel which after being "carved" resulted in the minimum energy throughout this step. Also record the center of mass and mass after carving it. 
 
