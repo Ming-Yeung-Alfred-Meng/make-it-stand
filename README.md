@@ -36,8 +36,14 @@ $$C = ||d - \frac{d \cdot g}{||g||^2}g||^2$$
 
 4. Iteratively identify indicies of voxels in the voxel grid that are within the outer mesh by at least the minimum thickness. igl::signed_distance() can use fast winding number to check if a point is inside a mesh and calculate its distance from it. We only consider voxel centers that has a distance $s$ outputed by igl::signed_distance() s.t. $s \leq 0$ and $|s| \geq \text{minimum thickness}$.
 
-5. 
-Sorting
+5. Imagine a plane that intersects the contact point $c$ and is perpendicular to $d$. It cuts the object into two regions. We now sort all voxel centers $r$ (survived from step 4) in decreasing order of their signed distance $s$ from the plane, which is computed as:
+
+$$s = (r - c) \cdot (d - \frac{d \cdot g}{||g||^2}g)$$
+
+Those that are in the same region as the center of mass have positive signed distance, those that have negative signed distance should be ignored, and there is no need to ever compute the plane. 
+
+Concretely, use std::sort() and a custom comparator that is a lambda function that takes two voxel indices as inputs, and compute and compare their signed distance from the imaginary plane. 
+
 Find the optimal sequence of voxels
 Construct inner mesh
 1. 
