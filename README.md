@@ -44,9 +44,9 @@ Those that are in the same region as the center of mass have positive signed dis
 
 Concretely, use std::sort() and a custom comparator that is a lambda function that takes two voxel indices as inputs, and compute and compare their signed distance from the imaginary plane. 
 
-6. The main loop of inner carving. Loop through the sorted voxels that have non-negative signed distance, and "carve" them one by one, i.e. update the center of mass and mass of the object at each iteration. Let $CoM_old$ and $m_old$ be the center of mass and mass before "carving" the current voxel in consideraion, respectively, their counterparts after "carving", $CoM_new$ and $m_new$ are:
+6. The main loop of inner carving. Loop through the sorted voxels that have non-negative signed distance, and "carve" them one by one, i.e. update the center of mass and mass of the object at each iteration. Let $\rho$ be the density, and $CoM_old$ and $m_old$ be the center of mass and mass before "carving" the current voxel in consideraion, respectively, their counterparts after "carving", $CoM_{new}$ and $m_{new}$ are:
 
-$$CoM_new$$
+$$CoM_{new} = \frac{CoM_{old} \cdot m_{old}}{m_{new}} - \frac{\rho}{24m_{new}}$$
 $$$$
 
 Find the optimal sequence of voxels
