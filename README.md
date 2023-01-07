@@ -47,7 +47,8 @@ Concretely, use std::sort() and a custom comparator that is a lambda function th
 6. The main loop of inner carving. Loop through the sorted voxels that have non-negative signed distance, and "carve" them one by one, i.e. update the center of mass and mass of the object at each iteration. Let $\rho$ be the density, and $CoM_old$ and $m_old$ be the center of mass and mass before "carving" the current voxel in consideraion, respectively, their counterparts after "carving", $CoM_{new}$ and $m_{new}$ are:
 
 $$CoM_{new} = \frac{CoM_{old} \cdot m_{old}}{m_{new}} - \frac{\rho}{24m_{new}}\sum_{f \in F} ((v_j - v_i) \times (v_k - v_i)) * g(v_i, v_j, v_k)$$
-$$$$
+
+$$m_{new} = m_{old} - \rho \cdot l^3$$
 
 Find the optimal sequence of voxels
 Construct inner mesh
