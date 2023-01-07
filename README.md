@@ -40,20 +40,24 @@ $$C = ||d - \frac{d \cdot g}{||g||^2}g||^2$$
 
 $$s = (r - c) \cdot (d - \frac{d \cdot g}{||g||^2}g)$$
 
-Those that are in the same region as the center of mass have positive signed distance, those that have negative signed distance should be ignored, and there is no need to ever compute the plane. 
+Those that are in the same region as the center of mass have positive signed distance. There is no need to ever compute the plane. 
 
 Concretely, use std::sort() and a custom comparator that is a lambda function that takes two voxel indices as inputs, and compute and compare their signed distance from the imaginary plane. 
 
+6. The main loop of inner carving. Loop through the sorted voxels that have non-negative signed distance, and "carve" them one by one, i.e. update the center of mass and mass of the object at each iteration. Let $CoM_old$ and $m_old$ be the center of mass and mass before "carving" the current voxel in consideraion, respectively, their counterparts after "carving", $CoM_new$ and $m_new$ are:
+
+$$CoM_new$$
+$$$$
+
 Find the optimal sequence of voxels
 Construct inner mesh
-1. 
-
 
 ### Deformation
 
 ### My Implementation v.s. The Authors' Impelementation
 1. The authors' implementation has two balancing mode: 1) the standing mode and 2) the suspension mode, while mine only implemented the standing mode.
-2. 
+2. The authors' implementation does not sort voxels that have negative signed distance.
+
 ### Known Limitations of My Implementation
 1. The ideal way of measuring the minimum distance between the outer mesh and the inner mesh would be to measure from the outer mesh to the corners of the voxels.
 2. Density seems to be unnecessary.
