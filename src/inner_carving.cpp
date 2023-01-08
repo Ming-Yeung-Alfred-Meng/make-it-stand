@@ -79,8 +79,8 @@ void inner_carving(
       energy = carving_energy(down, contact, CoM);
 
       if (energy < min_energy) {
-        optimal_mass = mass;
-        optimal_CoM = CoM;
+        optimal_mass = mass; // Only assigned, never used. Wait it is actually used in the next iteration.
+        optimal_CoM = CoM; // Only assigned, never used. Wait it is actually used in the next iteration.
         min_energy = energy;
         optimal_j = j;
       }
