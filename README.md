@@ -79,7 +79,6 @@ $$
 $$
 \begin{align}
 \frac{\partial m}{\partial v^{x}_{p}} &= \frac{\rho}{6}\sum_{N_{p}}((v_{j} - v_{i}) \times (v_{k} - v_{i}))^{x}\\
-
 &= \frac{\rho}{6}\sum_{N_{p}}v^{y}_{j}v^{z}_{k} - v^{y}_{j}v^{z}_{i} - v^{y}_{i}v^{z}_{k} - v^{z}_{j}v^{y}_{k} + v^{z}_{j}v^{y}_{i} + v^{z}_{i}v^{y}_{k}
 \end{align}
 $$
@@ -111,9 +110,7 @@ $$
 $$
 \frac{\partial (m \cdot CoM)}{\partial v_{p}} = \frac{\rho}{24}\sum_{N_{p}}\begin{bmatrix}
 ((v_{j} - v_{i}) \times (v_{k} - v_{i}))^{x}(2v^{x}_{i} + v^{x}_{j} + v^{x}_{k}) & (v^z_{i} - v^z_{k})g(v_i, v_j, v_k)^{x} & (v^{y}_{k} - v^{y}_{j})g(v_i, v_j, v_k)^{x}\\
-
 (v^{z}_{j} - v^{z}_{k})g(v_i, v_j, v_k)^{y}& ((v_{j} - v_{i}) \times (v_{k} - v_{i}))^{y}(2v^{y}_{i} + v^{y}_{j} + v^{y}_{k}) & (v^{x}_{k} - v^{x}_{j}g(v_i, v_j, v_k)^{y}\\
-
 (v^{y}_{j} - v^{y}_{k})g(v_i, v_j, v_k)^{z} & (v^{x}_{k} - v^{x}_{j})g(v_i, v_j, v_k)^{z} & ((v_{j} - v_{i}) \times (v_{k} - v_{i}))^{z}(2v^{z}_{i} + v^{z}_{j} + v^{z}_{k})
 \end{bmatrix}
 $$
