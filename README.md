@@ -61,10 +61,38 @@ The followings are the outer mesh (left) and the inner void (right) after runnin
 
 ### Deformation
 
-#### Gradient of Center of Mass w.r.t. 
-#### Gradient of Mass w.r.t.
+Please note that due to their shape and structure, the following matrices may not be applicable beyond this program.
+
+#### Gradient of Mass w.r.t. Vertices $\frac{\partial m}{\partial V}$
+$\frac{\partial m}{\partial V}$ is a $1 \times 3|V|$ matrix.
+
+$$\frac{\partial m}{\partial V} = \begin{bmatrix}\dots & \frac{\partial m}{\partial v_{i}} & \dots
+\end{bmatrix}$$
+
+$$\frac{\partial m}{\partial v_{i}} = \begin{bmatrix} \frac{\partial m}{\partial v^{(1)}_{i}} & \frac{\partial m}{\partial v^{(2)}_{i}} & \frac{\partial m}{\partial v^{(3)}_{i}}
+\end{bmatrix}$$
+
+$$\begin{align}
+\frac{\partial m}{\partial v^{(1)}_{i}} &= ((v^{(2)} - v^{(1)}) \times (v^{(3)} - v^{(1)}))^{(1)}\\
+&= v^{(2)}_{2}v^{(3)}_{3} - v^{(2)}_{2}v^{(3)}_{1} - v^{(2)}_{1}v^{(3)}_{3} - v^{(3)}_{2}v^{(2)}_{3} + v^{(3)}_{2}v^{(2)}_{1} + v^{(3)}_{1}v^{(2)}_{3}
+\end{align}$$
+
+$$
+\frac{\partial m}{\partial v^{(2)}_{i}} = (v^{(3)}_{2} - v^{(3)}_{3})(v^{(1)}_{1} + v^{(1)}_{2} + v^{(1)}_{3})
+$$
+
+$$
+\frac{\partial m}{\partial v^{(3)}_{i}} = (v^{(2)}_{3} - v^{(2)}_{2})(v^{(1)}_{1} + v^{(1)}_{2} + v^{(1)}_{3})
+$$
+
+#### Gradient of Center of Mass w.r.t. Vertices 
+
+
+
 #### LBS Matrices
+
 #### Laplacian
+
 #### Gradient Descent
 In Progress...
 
