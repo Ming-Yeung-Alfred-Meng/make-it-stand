@@ -64,7 +64,7 @@ The followings are the outer mesh (left) and the inner void (right) after runnin
 Please note that due to their shape and structure, the following matrices may not be applicable beyond this program.
 
 #### Gradient of Mass w.r.t. Vertices $\frac{\partial m}{\partial V}$
-$\frac{\partial m}{\partial V}$ is a $1 \times 3|V|$ matrix.
+$\frac{\partial m}{\partial V}$ is a $1 \times 3|V|$ matrix:
 
 $$\frac{\partial m}{\partial V} = \begin{bmatrix}\dots & \frac{\partial m}{\partial v_{i}} & \dots
 \end{bmatrix}$$
@@ -85,9 +85,21 @@ $$
 \frac{\partial m}{\partial v^{(3)}_{i}} = (v^{(2)}_{3} - v^{(2)}_{2})(v^{(1)}_{1} + v^{(1)}_{2} + v^{(1)}_{3})
 $$
 
-#### Gradient of Center of Mass w.r.t. Vertices 
+#### Gradient of Center of Mass w.r.t. Vertices $\frac{\partial CoM}{\partial V}$
+$\frac{\partial CoM}{\partial V}$ is a $3 \times 3|V|$ matrix:
 
-
+$$
+\begin{align}
+\frac{\partial CoM}{\partial V} &= \frac{1}{m}\left(\frac{\partial (m \cdot CoM)}{\partial V} - CoM\frac{\partial m}{\partial V}\right)\\
+\frac{\partial (m \cdot CoM)}{\partial V} &=\left[
+\begin{array}{cccc|c}
+1 & 0 & 3 & -1 & 0 \\
+0 & 1 & 1 & -1 & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+\end{array}
+\right]
+\end{align}
+$$
 
 #### LBS Matrices
 
