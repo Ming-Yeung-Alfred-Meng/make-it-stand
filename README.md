@@ -66,24 +66,23 @@ Please note that due to their shape and structure, the following matrices may no
 #### Gradient of Mass w.r.t. Vertices $\frac{\partial m}{\partial V}$
 $\frac{\partial m}{\partial V}$ is a $1 \times 3|V|$ matrix:
 
-$$\frac{\partial m}{\partial V} = \begin{bmatrix}\dots & \frac{\partial m}{\partial v_{p}} & \dots
-\end{bmatrix}$$
+$$
+\begin{align}
+\frac{\partial m}{\partial V} &= \begin{bmatrix}\dots & \frac{\partial m}{\partial v_{p}} & \dots
+\end{bmatrix}\\
 
-$$\frac{\partial m}{\partial v_{p}} = \begin{bmatrix} \frac{\partial m}{\partial v^{x}_{p}} & \frac{\partial m}{\partial v^{y}_{p}} & \frac{\partial m}{\partial v^{z}_{p}}
-\end{bmatrix}$$
+\frac{\partial m}{\partial v_{p}} &= \begin{bmatrix} \frac{\partial m}{\partial v^{x}_{p}} & \frac{\partial m}{\partial v^{y}_{p}} & \frac{\partial m}{\partial v^{z}_{p}}
+\end{bmatrix}\\
 
-$$\begin{align}
 \frac{\partial m}{\partial v^{x}_{p}} &= \frac{\rho}{6}\sum_{N_{p}}((v_{j} - v_{i}) \times (v_{k} - v_{i}))^{x}\\
-&= \frac{\rho}{6}\sum_{N_{p}}v^{y}_{j}v^{z}_{k} - v^{y}_{j}v^{z}_{i} - v^{y}_{i}v^{z}_{k} - v^{z}_{j}v^{y}_{k} + v^{z}_{j}v^{y}_{i} + v^{z}_{i}v^{y}_{k}
-\end{align}$$
+&= \frac{\rho}{6}\sum_{N_{p}}v^{y}_{j}v^{z}_{k} - v^{y}_{j}v^{z}_{i} - v^{y}_{i}v^{z}_{k} - v^{z}_{j}v^{y}_{k} + v^{z}_{j}v^{y}_{i} + v^{z}_{i}v^{y}_{k}\\
 
-$$
-\frac{\partial m}{\partial v^{y}_{p}} = (v^{z}_{p + 1} - v^{z}_{p + 2})(v^{x}_{i} + v^{x}_{j} + v^{x}_{k})
+\frac{\partial m}{\partial v^{y}_{p}} &= \frac{\rho}{6}\sum_{N_{p}}(v^{z}_{p + 1} - v^{z}_{p + 2})(v^{x}_{i} + v^{x}_{j} + v^{x}_{k})\\
+
+\frac{\partial m}{\partial v^{z}_{p}} &= \frac{\rho}{6}\sum_{N_{p}}(v^{y}_{p + 2} - v^{y}_{p + 1})(v^{x}_{i} + v^{x}_{j} + v^{x}_{k})
+\end{align}
 $$
 
-$$
-\frac{\partial m}{\partial v^{z}_{p}} = (v^{y}_{p + 2} - v^{y}_{p + 1})(v^{x}_{i} + v^{x}_{j} + v^{x}_{k})
-$$
 
 #### Gradient of Center of Mass w.r.t. Vertices $\frac{\partial CoM}{\partial V}$
 $\frac{\partial CoM}{\partial V}$ is a $3 \times 3|V|$ matrix:
@@ -93,13 +92,15 @@ $$
 \frac{\partial CoM}{\partial V} &= \frac{1}{m}\left(\frac{\partial (m \cdot CoM)}{\partial V} - CoM\frac{\partial m}{\partial V}\right)\\
 \frac{\partial (m \cdot CoM)}{\partial V} &=\left[
 \begin{array}{c|c|c}
-\cdots & \frac{\partial (m \cdot CoM)}{\partial v_{i}} & \cdots
+\cdots & \frac{\partial (m \cdot CoM)}{\partial v_{p}} & \cdots
 \end{array}
 \right]\\
-\frac{\partial (m \cdot CoM)}{\partial v_{i}} &= \begin{bmatrix}
-(v_{j} - v_{i}) \times (v_{k} - v_{i})^{x} & g^{x}(v^z_{i} - v^z_{k}) & g^{x}\\
-g^{y}&(v_{j} - v{i}) \times (v_{k} - v_{i})^{y}&g^{y}\\
-g^{z} & g^{z} &(v_{j} - v{i}) \times (v_{k} - v_{i})^{z}\\
+\frac{\partial (m \cdot CoM)}{\partial v_{p}} &= \frac{\rho}{24}\sum_{N_{p}}\begin{bmatrix}
+((v_{j} - v_{i}) \times (v_{k} - v_{i}))^{x}(2v^{x}_{i} + v^{x}_{j} + v^{x}_{k}) & (v^z_{i} - v^z_{k})g(v_i, v_j, v_k)^{x} & (v^{y}_{k} - v^{y}_{j})g(v_i, v_j, v_k)^{x}\\
+
+(v^{z}_{j} - v^{z}_{k})g(v_i, v_j, v_k)^{y}& ((v_{j} - v_{i}) \times (v_{k} - v_{i}))^{y}(2v^{y}_{i} + v^{y}_{j} + v^{y}_{k}) & (v^{x}_{k} - v^{x}_{j}g(v_i, v_j, v_k)^{y}\\
+
+(v^{y}_{j} - v^{y}_{k})g(v_i, v_j, v_k)^{z} & (v^{x}_{k} - v^{x}_{j})g(v_i, v_j, v_k)^{z} & ((v_{j} - v_{i}) \times (v_{k} - v_{i}))^{z}(2v^{z}_{i} + v^{z}_{j} + v^{z}_{k})\\
 \end{bmatrix}
 \end{align}
 $$
