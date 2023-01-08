@@ -66,23 +66,23 @@ Please note that due to their shape and structure, the following matrices may no
 #### Gradient of Mass w.r.t. Vertices $\frac{\partial m}{\partial V}$
 $\frac{\partial m}{\partial V}$ is a $1 \times 3|V|$ matrix:
 
-$$\frac{\partial m}{\partial V} = \begin{bmatrix}\dots & \frac{\partial m}{\partial v_{i}} & \dots
+$$\frac{\partial m}{\partial V} = \begin{bmatrix}\dots & \frac{\partial m}{\partial v_{p}} & \dots
 \end{bmatrix}$$
 
-$$\frac{\partial m}{\partial v_{i}} = \begin{bmatrix} \frac{\partial m}{\partial v^{(1)}_{i}} & \frac{\partial m}{\partial v^{(2)}_{i}} & \frac{\partial m}{\partial v^{(3)}_{i}}
+$$\frac{\partial m}{\partial v_{p}} = \begin{bmatrix} \frac{\partial m}{\partial v^{x}_{p}} & \frac{\partial m}{\partial v^{y}_{p}} & \frac{\partial m}{\partial v^{z}_{p}}
 \end{bmatrix}$$
 
 $$\begin{align}
-\frac{\partial m}{\partial v^{(1)}_{i}} &= ((v^{(2)} - v^{(1)}) \times (v^{(3)} - v^{(1)}))^{(1)}\\
-&= v^{(2)}_{2}v^{(3)}_{3} - v^{(2)}_{2}v^{(3)}_{1} - v^{(2)}_{1}v^{(3)}_{3} - v^{(3)}_{2}v^{(2)}_{3} + v^{(3)}_{2}v^{(2)}_{1} + v^{(3)}_{1}v^{(2)}_{3}
+\frac{\partial m}{\partial v^{x}_{p}} &= \frac{\rho}{6}\sum_{N_{p}}((v_{j} - v_{i}) \times (v_{k} - v_{i}))^{x}\\
+&= \frac{\rho}{6}\sum_{N_{p}}v^{y}_{j}v^{z}_{k} - v^{y}_{j}v^{z}_{i} - v^{y}_{i}v^{z}_{k} - v^{z}_{j}v^{y}_{k} + v^{z}_{j}v^{y}_{i} + v^{z}_{i}v^{y}_{k}
 \end{align}$$
 
 $$
-\frac{\partial m}{\partial v^{(2)}_{i}} = (v^{(3)}_{2} - v^{(3)}_{3})(v^{(1)}_{1} + v^{(1)}_{2} + v^{(1)}_{3})
+\frac{\partial m}{\partial v^{y}_{p}} = (v^{z}_{p + 1} - v^{z}_{p + 2})(v^{x}_{i} + v^{x}_{j} + v^{x}_{k})
 $$
 
 $$
-\frac{\partial m}{\partial v^{(3)}_{i}} = (v^{(2)}_{3} - v^{(2)}_{2})(v^{(1)}_{1} + v^{(1)}_{2} + v^{(1)}_{3})
+\frac{\partial m}{\partial v^{z}_{p}} = (v^{y}_{p + 2} - v^{y}_{p + 1})(v^{x}_{i} + v^{x}_{j} + v^{x}_{k})
 $$
 
 #### Gradient of Center of Mass w.r.t. Vertices $\frac{\partial CoM}{\partial V}$
@@ -92,12 +92,15 @@ $$
 \begin{align}
 \frac{\partial CoM}{\partial V} &= \frac{1}{m}\left(\frac{\partial (m \cdot CoM)}{\partial V} - CoM\frac{\partial m}{\partial V}\right)\\
 \frac{\partial (m \cdot CoM)}{\partial V} &=\left[
-\begin{array}{cccc|c}
-1 & 0 & 3 & -1 & 0 \\
-0 & 1 & 1 & -1 & 0 \\
-0 & 0 & 0 & 0 & 0 \\
+\begin{array}{c|c|c}
+\cdots & \frac{\partial (m \cdot CoM)}{\partial v_{i}} & \cdots
 \end{array}
-\right]
+\right]\\
+\frac{\partial (m \cdot CoM)}{\partial v_{i}} &= \begin{bmatrix}
+(v_{j} - v_{i}) \times (v_{k} - v_{i})^{x} & g^{x}(v^z_{i} - v^z_{k}) & g^{x}\\
+g^{y}&(v_{j} - v{i}) \times (v_{k} - v_{i})^{y}&g^{y}\\
+g^{z} & g^{z} &(v_{j} - v{i}) \times (v_{k} - v_{i})^{z}\\
+\end{bmatrix}
 \end{align}
 $$
 
