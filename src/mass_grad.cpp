@@ -6,7 +6,7 @@ void mass_grad(
   const double density,
   Eigen::RowVectorXd &grad)
 {
-  grad.resize(V.size());
+  grad.resize(3 * V.size());
   grad.setZero();
 
   double n_x;
