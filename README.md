@@ -2,7 +2,7 @@
 
 ## General Idea of the Algorithm
 
-The algorithm shifts the center of mass of the object a given triangle mesh represents, so that it balances without easily toppling after fabrication through 3D printing. It uses two methods: 1) inner carving and 2) deformation. Inner carving creates a mesh to represent an empty region to be constructed inside the input mesh. From now on, we shall call them the inner and outer mesh, respectively. Essentailly, inner carving shift the center of mass by redistributing mass. Deformation shifts it by deforming the inner and outer mesh via linear blend skinning using bounded biharmonic weights.
+The algorithm shifts the center of mass of the object a given triangle mesh represents, so that it balances without easily toppling after fabrication through 3D printing. It uses two methods: 1) inner carving and 2) deformation. Inner carving creates a mesh to represent an empty region to be constructed inside the input mesh. From now on, we shall call them the inner and outer mesh, respectively. Essentailly, inner carving shift the center of mass by redistributing mass. Deformation shifts it by deforming the inner and outer mesh via linear blend skinning (LBS) using bounded biharmonic weights.
 
 ## My Implementation
 
@@ -63,7 +63,7 @@ The followings are the outer mesh (left) and the inner void (right) after runnin
 
 Please note that due to their shape and structure, the following matrices may not be applicable beyond this program.
 
-#### Gradient of Mass w.r.t. Vertices $\frac{\partial m}{\partial V}$
+#### Derivative of Mass w.r.t. Vertices $\frac{\partial m}{\partial V}$
 $\frac{\partial m}{\partial V}$ is a $1 \times 3|V|$ matrix:
 
 $$
@@ -92,7 +92,7 @@ $$
 $$
 
 
-#### Gradient of Center of Mass w.r.t. Vertices $\frac{\partial CoM}{\partial V}$
+#### Derivative of Center of Mass w.r.t. Vertices $\frac{\partial CoM}{\partial V}$
 $\frac{\partial CoM}{\partial V}$ is a $3 \times 3|V|$ matrix:
 
 $$
@@ -115,7 +115,17 @@ $$
 \end{bmatrix}
 $$
 
-#### LBS Matrices
+#### Linear Blend Skinning Matrices $M$
+$M$ is $3|V| \times 4|N|$ and has the following structure:
+
+$$
+M = \begin{bmatrix}
+\ddots & \vdots & \rddots\\
+(v^{z}_{j} - v^{z}_{k})g(v_i, v_j, v_k)^{y}& ((v_{j} - v_{i}) \times (v_{k} - v_{i}))^{y}(2v^{y}_{i} + v^{y}_{j} + v^{y}_{k}) & (v^{x}_{k} - v^{x}_{j}g(v_i, v_j, v_k)^{y}\\
+(v^{y}_{j} - v^{y}_{k})g(v_i, v_j, v_k)^{z} & (v^{x}_{k} - v^{x}_{j})g(v_i, v_j, v_k)^{z} & ((v_{j} - v_{i}) \times (v_{k} - v_{i}))^{z}(2v^{z}_{i} + v^{z}_{j} + v^{z}_{k})
+\end{bmatrix}
+$$
+
 
 #### Laplacian
 
