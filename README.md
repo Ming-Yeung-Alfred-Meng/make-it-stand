@@ -100,11 +100,9 @@ $$
 $$
 
 $$
-\frac{\partial (m \cdot CoM)}{\partial V} =\left[
-\begin{array}{c|c|c}
+\frac{\partial (m \cdot CoM)}{\partial V} = \begin{bmatrix}
 \cdots & \frac{\partial (m \cdot CoM)}{\partial v_{p}} & \cdots
-\end{array}
-\right]
+\end{bmatrix}
 $$
 
 $$
@@ -116,15 +114,21 @@ $$
 $$
 
 #### Linear Blend Skinning Matrices $M$
-$M$ is $3|V| \times 4|N|$ and has the following structure:
+$M$ is $3|V| \times 4|N|$. Slice $M$ evenly into $|V| \cdot |N|$ sub-matrices of size $3 \times 4$, and let $M_{ij}$ be the sub-matrix on the $i$-th row and $j$-th column, then:
 
 $$
 M = \begin{bmatrix}
-\ddots & \vdots & \rddots\\
-(v^{z}_{j} - v^{z}_{k})g(v_i, v_j, v_k)^{y}& ((v_{j} - v_{i}) \times (v_{k} - v_{i}))^{y}(2v^{y}_{i} + v^{y}_{j} + v^{y}_{k}) & (v^{x}_{k} - v^{x}_{j}g(v_i, v_j, v_k)^{y}\\
-(v^{y}_{j} - v^{y}_{k})g(v_i, v_j, v_k)^{z} & (v^{x}_{k} - v^{x}_{j})g(v_i, v_j, v_k)^{z} & ((v_{j} - v_{i}) \times (v_{k} - v_{i}))^{z}(2v^{z}_{i} + v^{z}_{j} + v^{z}_{k})
+ & \vdots & \\
+\dots & M_{ij} & \dots\\
+ & \vdots & 
 \end{bmatrix}
 $$
+
+$$
+M_{ij} = \begin{bmatrix}
+\end{bmatrix}
+$$
+
 
 
 #### Laplacian
