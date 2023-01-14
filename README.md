@@ -113,23 +113,24 @@ $$
 \end{bmatrix}
 $$
 
-#### Linear Blend Skinning Matrices $M$
-$M$ is $3|V| \times 4|N|$. Slice $M$ evenly into $|V| \cdot |N|$ sub-matrices of size $3 \times 4$, and let $M_{ij}$ be the sub-matrix on the $i$-th row and $j$-th column, then:
+#### Linear Blend Skinning Matrix $M$
+$M$ is $3|V| \times 4|N|$. Slice $M$ evenly into $|V| \cdot |N|$ sub-matrices of size $3 \times 4$, and let $M_{ij}$ be the sub-matrix on the $i$-th row and $j$-th column. Let $w_{ij}$ be the weight of the $j$-th handle on the $i$-th vertex, then:
 
 $$
 M = \begin{bmatrix}
  & \vdots & \\
 \dots & M_{ij} & \dots\\
- & \vdots & 
+ & \vdots &
 \end{bmatrix}
 $$
 
 $$
-M_{ij} = \begin{bmatrix}
+M_{ij} = w_{ij}\begin{bmatrix}
+1 & 0 & 0 & v_{i}^{x}\\
+0 & 1 & 0 & v_{i}^{x}\\
+0 & 0 & 1 & v_{i}^{x}
 \end{bmatrix}
 $$
-
-
 
 #### Laplacian
 
