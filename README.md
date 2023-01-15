@@ -1,4 +1,4 @@
-# An Implementation of Make It Stand (add reference to the paper here)
+# An Implementation of ["Make It Stand" [Prévost et al. 2013]](papers/make-it-stand-siggraph-2013-prevost-et-al.pdf.pdf)
 
 ## General Idea of the Algorithm
 
