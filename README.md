@@ -55,17 +55,17 @@ Creates an inner mesh to represent the boundary of the region to empty inside th
 
 5. Imagine a plane that intersects $k$ and is perpendicular to $d$. It cuts the object into two regions. We now sort all voxel centers $r \in \mathbb{R^3}$ (survived from step 4) in decreasing order of their signed distance from the plane, which is computed as:
    
-    $$s = (r - k) \cdot \left(d - \frac{d \cdot \mathbf{g}}{||\mathbf{g}||^2} \mathbf{g}\right)$$
+    $$s = (r - k)\left(d - \frac{d \cdot \mathbf{g}}{||\mathbf{g}||^2} \mathbf{g}\right)$$
 
     Those that are in the same region as the center of mass have positive signed distance. There is no need to ever compute the plane. 
 
     Concretely, use std::sort() and a custom comparator that is a lambda function that takes two voxel indices as inputs, and computes and compares their signed distance from the imaginary plane. 
    
-6. Loop through the sorted voxels that have non-negative signed distance, and "carve" them one by one, i.e. update the center of mass and mass of the object at each iteration. Let $\rho, l \in \mathbb{R}$ be the density and side length of a voxel, respectively, and $c', m' \in \mathbb{R^3}$ be the center of mass and mass after "carving" the current voxel in consideration, respectively. Let $F = \{(v_i, v_j, v_k) \in \mathbb{R^3} \times \mathbb{R^3} \times \mathbb{R^3} : v_{i}, v_{j}, v_{k} \text{ form a face of the voxel}\}$. Let $\ast$ and $g$ be the element-wise multiplication, and the corresonding function on page 3 of the [paper](papers/make-it-stand-siggraph-2013-prevost-et-al.pdf), respectively.
+6. Loop through the sorted voxels that have non-negative signed distance, and "carve" them one by one, i.e. update the center of mass and mass of the object at each iteration. Let $\rho, l \in \mathbb{R}$ be the density and side length of a voxel, respectively, and $c', m' \in \mathbb{R^3}$ be the center of mass and mass after "carving" the current voxel in consideration, respectively. Let $F = \{(v_i, v_j, v_k) \in \mathbb{R^3} \times \mathbb{R^3} \times \mathbb{R^3} : v_{i}, v_{j}, v_{k} \text{ form a face of the voxel}\}$. By convention, vertices of a voxel face are ordered such that they run counterclockwise on it. Let $\ast$ and $g$ be the element-wise multiplication, and the corresonding function on page 3 of the [paper](papers/make-it-stand-siggraph-2013-prevost-et-al.pdf), respectively.
 
-    $$m' = m - \rho \cdot l^3$$
+    $$m' = m - \rho l^3$$
 
-    $$c' = \frac{c' \cdot m}{m'} - \frac{\rho}{24 \cdot m'}\sum_{F} ((v_j - v_i) \times (v_k - v_i)) * g(v_i, v_j, v_k)$$
+    $$c' = \frac{mc}{m'} - \frac{\rho}{24m'} \sum_{(v_{i}, v_{j}, v_{k}) \in F} ((v_j - v_i) \times (v_k - v_i)) * g(v_i, v_j, v_k)$$
 
     Record the index of the voxel which after being "carved" resulted in the minimum energy throughout this step. Also record the center of mass and mass after carving it. 
 
@@ -73,17 +73,17 @@ Creates an inner mesh to represent the boundary of the region to empty inside th
 
 7. Repeat step 5 with the recorded center of mass and mass from the previous step, and sort only the uncarved voxels, that is sort them with a new imaginary plane. Repeat step 6. Repeat this step (7) untill the carving energy (resulted from each of step 6) no longer decreases or the number of voxels "carved" is less than the minimun threshold specified in the settings above.
 
-8. Construct the boundary of the voxels "carved", which is the inner mesh. First construct a mask that indicates which voxels are "carved", for example, at the $i$-th position, a value of $-1$ and $1$ indicates the $i$-th voxel is "carved" and not "carved", respectively. Loop through each dimension of the voxel grid, whenever there is a sign change from one voxel to the next, construct two triangle faces that form the square face between them.
+8. Construct the boundary of the voxels "carved", which is the inner mesh. First construct a mask that indicates which voxels are "carved", for example, at the $i$-th position, a value of $-1$ and $1$ indicates the $i$-th voxel is "carved" and not "carved", respectively. Loop through each dimension of the voxel grid, whenever there is a sign change from one voxel to the next, construct two triangle faces that form the square face between them. Order the vertices on a face such that they run clockwise on it.
 
 ### Deformation
 Deforms the inner and outer mesh via linear blend skinning and bounded biharmonic weights [Jacobson et al., 2011].
 
 Below defines the matrices needed for finding the optimal deformation via gradient descent. Please note that due to their shape and structure, the following matrices may not be applicable beyond this program.
 
-Let $V \in \mathbb{R}^{|V| \times 3}$, $N \in \mathbb{R}^{|N| \times 3}$ be the vertices and handles, respective, where $|V|, |N| \in \mathbb{R}$ are the number of vertices and handles, respective. Let $v_{i} \in \mathbb{R}^3$ be the $i$-th vertex in $V$, and $v_{i}^{x} \in \mathbb{R}$ be the $x$-component of $v_{i}$, $v_{i}^{y}$ and $v_{i}^{z}$ are defined analogously.
+Let $V \in \mathbb{R}^{|V| \times 3}$, $N \in \mathbb{R}^{|N| \times 3}$ be the vertices and handles, respective, where $|V|, |N| \in \mathbb{R}$ are the number of vertices and handles, respective. Let $v_{i} \in \mathbb{R}^3$ be the $i$-th vertex in $V$, and $v_{i}^{x} \in \mathbb{R}$ be the $x$-component of $v_{i}$, $v_{i}^{y}$ and $v_{i}^{z}$ are defined analogously. Let $F_{i}$ be the set of faces incident on $v_{i}$. Let $v_{i}'$ and $v_{i}''$ be the next and second next vertex on a face that incidents on $v_{i}$. The notion of "next" is defined relative to whether vertices run clockwise or counterclockwise on a face.
 
 #### Derivative of Mass w.r.t. Vertices 
-$\frac{\partial m}{\partial V}$ is a $1 \times 3|V|$ matrix:
+$\frac{\partial m}{\partial V} \in \mathbb{R}^{1 \times 3|V|}$:
 
 $$
 \frac{\partial m}{\partial V} = \begin{bmatrix}\dots & \frac{\partial m}{\partial v_{p}} & \dots
@@ -112,28 +112,28 @@ $$
 
 
 #### Derivative of Center of Mass w.r.t. Vertices
-$\frac{\partial c}{\partial V}$ is a $3 \times 3|V|$ matrix:
+$\frac{\partial c}{\partial V} \in \mathbb{R}^{3 \times 3|V|}$:
 
 $$
-\frac{\partial c}{\partial V} = \frac{1}{m}\left(\frac{\partial (m \cdot c)}{\partial V} - c\frac{\partial m}{\partial V}\right)
+\frac{\partial c}{\partial V} = \frac{1}{m}\left(\frac{\partial (mc)}{\partial V} - c\frac{\partial m}{\partial V}\right)
 $$
 
 $$
-\frac{\partial (m \cdot c)}{\partial V} = \begin{bmatrix}
-\cdots & \frac{\partial (m \cdot c)}{\partial v_{p}} & \cdots
+\frac{\partial (mc)}{\partial V} = \begin{bmatrix}
+\cdots & \frac{\partial (mc)}{\partial v_{p}} & \cdots
 \end{bmatrix}
 $$
 
 $$
-\frac{\partial (m \cdot c)}{\partial v_{p}} = \frac{\rho}{24}\sum_{F_{p}}\begin{bmatrix}
-((v_{j} - v_{i}) \times (v_{k} - v_{i}))^{x}(2v^{x}_{i} + v^{x}_{j} + v^{x}_{k}) & (v^z_{i} - v^z_{k})g(v_i, v_j, v_k)^{x} & (v^{y}_{k} - v^{y}_{j})g(v_i, v_j, v_k)^{x}\\
-(v^{z}_{j} - v^{z}_{k})g(v_i, v_j, v_k)^{y}& ((v_{j} - v_{i}) \times (v_{k} - v_{i}))^{y}(2v^{y}_{i} + v^{y}_{j} + v^{y}_{k}) & (v^{x}_{k} - v^{x}_{j}g(v_i, v_j, v_k)^{y}\\
-(v^{y}_{j} - v^{y}_{k})g(v_i, v_j, v_k)^{z} & (v^{x}_{k} - v^{x}_{j})g(v_i, v_j, v_k)^{z} & ((v_{j} - v_{i}) \times (v_{k} - v_{i}))^{z}(2v^{z}_{i} + v^{z}_{j} + v^{z}_{k})
+\frac{\partial (mc)}{\partial v_{p}} = \frac{\rho}{24}\sum_{F_{p}}\begin{bmatrix}
+((v_{j} - v_{i}) \times (v_{k} - v_{i}))^{x}(2v^{x}_{i} + v^{x}_{j} + v^{x}_{k}) & g(v_i, v_j, v_k)^{x}(v^z_{i} - v^z_{k}) & g(v_i, v_j, v_k)^{x}(v^{y}_{k} - v^{y}_{j})\\
+g(v_i, v_j, v_k)^{y}(v^{z}_{j} - v^{z}_{k})& ((v_{j} - v_{i}) \times (v_{k} - v_{i}))^{y}(2v^{y}_{i} + v^{y}_{j} + v^{y}_{k}) & g(v_i, v_j, v_k)^{y}(v^{x}_{k} - v^{x}_{j})\\
+g(v_i, v_j, v_k)^{z}(v^{y}_{j} - v^{y}_{k}) & g(v_i, v_j, v_k)^{z}(v^{x}_{k} - v^{x}_{j}) & ((v_{j} - v_{i}) \times (v_{k} - v_{i}))^{z}(2v^{z}_{i} + v^{z}_{j} + v^{z}_{k})
 \end{bmatrix}
 $$
 
 #### Linear Blend Skinning Matrix
-$M$ is $3|V| \times 4|N|$. Slice $M$ evenly into $|V| \cdot |N|$ sub-matrices of size $3 \times 4$, and let $M_{ij}$ be the sub-matrix on the $i$-th row and $j$-th column. Let $w_{ij}$ be the weight of the $j$-th handle on the $i$-th vertex, then:
+$M \in \mathbb{R}^{3|V| \times 4|N|}$. Slice $M$ evenly into $|V|$ rows and $|N|$ columns of sub-matrices of size $3 \times 4$, and let $M_{ij}$ be the sub-matrix on the $i$-th row and $j$-th column. Let $w_{ij}$ be the bounded biharmonic weight of the $j$-th handle on the $i$-th vertex, then:
 
 $$
 M_{ij} = w_{ij}\begin{bmatrix}
@@ -144,7 +144,7 @@ M_{ij} = w_{ij}\begin{bmatrix}
 $$
 
 #### Laplacian
-$M_{Lap}$ is $3 |V| \times 3 |V|$. Slice $M_{Lap}$ evenly into $|V|^2$ sub-matrices of size $3 \times 3$, and let $L_{ij}$ be the sub-matrix on the $i$-th row and $j$-th column, then:
+$M_{Lap} \in \mathbf{R}^{3 |V| \times 3 |V|}$. Slice $M_{Lap}$ evenly into $|V|$ rows and $|V|$ columns of sub-matrices of size $3 \times 3$, and let $L_{ij}$ be the sub-matrix on the $i$-th row and $j$-th column. Assume that an (undirected) edge $\{v_{i}, v_{j}\}$ exists if and only if the two directed edges $(v_{i}, v_{j})$ and $(v_{i}, v_{j})$ exist. If $(v_{i}, v_{j})$ exists and $i \neq j$, let $\alpha_{ij}$ and $\beta_{ij}$ be the two angles opposite to this edge, for more details, please refer to [Finite Element Derivation of the Discrete Laplacian](https://github.com/alecjacobson/geometry-processing-smoothing#finite-element-derivation-of-the-discrete-laplacian), then:
 
 $$
 L_{ij} = \begin{bmatrix}
@@ -156,7 +156,7 @@ $$
 
 $$
 c_{ij} = \begin{cases}
-         \frac{1}{2}  \cot{{\alpha}_{ij}} + \frac{1}{2}  \cot{{\beta}_{ij}}  & \text{if edge $ij$ exists} \\
+         \frac{1}{2}  \cot{{\alpha}_{ij}} + \frac{1}{2}  \cot{{\beta}_{ij}}  & \text{if $(v_{i}, v_{j})$ exists} \\
          - {\sum}_{j\ne i} L_{ij}                   & \text{if $i = j$} \\
          0                                & \text{otherwise}
          \end{cases}
