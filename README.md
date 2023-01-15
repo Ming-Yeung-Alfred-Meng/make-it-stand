@@ -1,24 +1,24 @@
-# An Implementation of ["Make It Stand" [Prévost et al., 2013]](papers/make-it-stand-siggraph-2013-prevost-et-al.pdf)
-
-## Table of Contents
 - [An Implementation of "Make It Stand" \[Prévost et al., 2013\]](#an-implementation-of-make-it-stand-prévost-et-al-2013)
-  - [Table of Contents](#table-of-contents)
   - [High-Level Idea of the Algorithm](#high-level-idea-of-the-algorithm)
   - [My Implementation](#my-implementation)
     - [Inner Carving](#inner-carving)
       - [Inputs](#inputs)
       - [Settings](#settings)
       - [Steps](#steps)
-      - [A Small Showcase](#a-small-showcase)
     - [Deformation](#deformation)
-      - [Derivative of Mass w.r.t. Vertices $\\frac{\\partial m}{\\partial V}$](#derivative-of-mass-wrt-vertices-fracpartial-mpartial-v)
-      - [Derivative of Center of Mass w.r.t. Vertices $\\frac{\\partial CoM}{\\partial V}$](#derivative-of-center-of-mass-wrt-vertices-fracpartial-compartial-v)
-      - [Linear Blend Skinning Matrix $M$](#linear-blend-skinning-matrix-m)
-      - [Laplacian $M\_{Lap}$](#laplacian-m_lap)
+      - [Derivative of Mass w.r.t. Vertices](#derivative-of-mass-wrt-vertices)
+      - [Derivative of Center of Mass w.r.t. Vertices](#derivative-of-center-of-mass-wrt-vertices)
+      - [Linear Blend Skinning Matrix](#linear-blend-skinning-matrix)
+      - [Laplacian](#laplacian)
       - [Gradient Descent](#gradient-descent)
     - [My Implementation v.s. The Authors' Impelementation](#my-implementation-vs-the-authors-impelementation)
     - [Known Limitations of My Implementation](#known-limitations-of-my-implementation)
     - [TODO](#todo)
+
+# An Implementation of ["Make It Stand" [Prévost et al., 2013]](papers/make-it-stand-siggraph-2013-prevost-et-al.pdf)
+
+![](images/knight_inner_and_outer_mesh.png)
+The outer mesh (left) and the inner void (right) after running the inner carving algorithm. The contact point between the knight and the ground is selected so that it balances on its right foot.
 
 ## High-Level Idea of the Algorithm
 
@@ -76,16 +76,11 @@ Notice that we visit all sorted voxels with non-negative signed distance implies
 
 8. Construct the boundary of the voxels "carved", which is the inner mesh. First construct a mask that indicates which voxels are "carved", for example, at the $i$-th position, a value of $-1$ and $1$ indicates the $i$-th voxel is "carved" and not "carved", respectively. Loop through each dimension of the voxel grid, whenever there is a sign change from one voxel to the next, construct two triangle faces that form the square face between them.
 
-#### A Small Showcase
-The followings are the outer mesh (left) and the inner void (right) after running the inner carving algorithm. The contact point between the figure and the ground is selected so that it can balance on its right foot.
-
-![](images/outer_mesh.png)![](images/inner_mesh.png)
-
 ### Deformation
 
 Please note that due to their shape and structure, the following matrices may not be applicable beyond this program.
 
-#### Derivative of Mass w.r.t. Vertices $\frac{\partial m}{\partial V}$
+#### Derivative of Mass w.r.t. Vertices 
 $\frac{\partial m}{\partial V}$ is a $1 \times 3|V|$ matrix:
 
 $$
@@ -114,7 +109,7 @@ $$
 $$
 
 
-#### Derivative of Center of Mass w.r.t. Vertices $\frac{\partial CoM}{\partial V}$
+#### Derivative of Center of Mass w.r.t. Vertices
 $\frac{\partial CoM}{\partial V}$ is a $3 \times 3|V|$ matrix:
 
 $$
@@ -135,7 +130,7 @@ $$
 \end{bmatrix}
 $$
 
-#### Linear Blend Skinning Matrix $M$
+#### Linear Blend Skinning Matrix
 $M$ is $3|V| \times 4|N|$. Slice $M$ evenly into $|V| \cdot |N|$ sub-matrices of size $3 \times 4$, and let $M_{ij}$ be the sub-matrix on the $i$-th row and $j$-th column. Let $w_{ij}$ be the weight of the $j$-th handle on the $i$-th vertex, then:
 
 $$
@@ -146,7 +141,7 @@ M_{ij} = w_{ij}\begin{bmatrix}
 \end{bmatrix}
 $$
 
-#### Laplacian $M_{Lap}$
+#### Laplacian
 $M_{Lap}$ is $3 |V| \times 3 |V|$. Slice $M_{Lap}$ evenly into $|V|^2$ sub-matrices of size $3 \times 3$, and let $L_{ij}$ be the sub-matrix on the $i$-th row and $j$-th column, then:
 
 $$
