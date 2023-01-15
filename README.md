@@ -14,21 +14,20 @@
     - [My Implementation v.s. The Authors' Impelementation](#my-implementation-vs-the-authors-impelementation)
     - [Known Limitations of My Implementation](#known-limitations-of-my-implementation)
     - [TODO](#todo)
-
 # An Implementation of ["Make It Stand" [Prévost et al., 2013]](papers/make-it-stand-siggraph-2013-prevost-et-al.pdf)
 
 ![](images/knight_inner_and_outer_mesh.png)
+
 The outer mesh (left) and the inner void (right) after running the inner carving algorithm. The contact point between the knight and the ground is selected so that it balances on its right foot.
 
 ## High-Level Idea of the Algorithm
 
 The algorithm shifts the center of mass of an object a given triangle mesh represents, so that it balances without easily toppling after fabrication through 3D printing. It has two stages: 1) inner carving and 2) deformation. Inner carving shifts the center of mass by constructing an empty region inside the object. The second stage deforms the object into a more balanced pose.
 
-Inner carving creates a inner mesh to represent an empty region to be constructed inside the object. Essentailly, inner carving shifts the center of mass by redistributing mass. Deformation shifts it by deforming the inner and outer mesh via linear blend skinning (LBS) using bounded biharmonic weights.
-
 ## My Implementation
 
 ### Inner Carving
+Creates an inner mesh to represent the boundary of the region to empty inside the object.
 
 #### Inputs
 1. The outer mesh.
@@ -36,23 +35,26 @@ Inner carving creates a inner mesh to represent an empty region to be constructe
 
 #### Settings
 1. Direction of gravitational pull. In my case, it is the negative y-direction, as libigl's viewer uses the convention that the positive x- and y-direction are right and up, respectively.
-2. Size of a voxel. Smaller meshes require smaller voxels, and smaller voxels enable higher precision.
-3. Minimum number of voxels to carve in each iteration of inner carving
-4. Minimum thickness of the object's physical shell, i.e. the minimum distance between the outer mesh and the inner mesh. This is currently calculated as the minimum distance between the outer mesh and the voxel **CENTERS**.
+2. Number of voxels along the longest side of the voxel grid used to compute the empty region. Increasing this number is equivalent to having smaller voxels. Smaller meshes require smaller voxels, and smaller voxels enable higher precision.
+3. Minimum number of voxels to carve in each iteration of inner carving.
+4. Minimum thickness of the object's physical shell, i.e. the minimum distance between the outer mesh and the inner mesh. This is currently calculated as the minimum distance between the outer mesh and the voxel **centers**.
 5. Density of the 3D printing material.
 
 #### Steps
-1. Use igl::voxel_grid() to construct a voxel grid surrounding the outer mesh. Include a padding of at least one voxel, as it simplifies the later step of constructing the inner mesh. I used the overload of igl::voxel_grid() that takes the vertices of the outer mesh as an input. It fixes the padding count to be 1, so setting the bounding box offset to be 0 creates an adequate voxel grid.
+1. Use igl::voxel_grid() to construct a voxel grid surrounding the outer mesh. Include a padding of at least one voxel, as it simplifies the later step of constructing the inner mesh. I used the overload of igl::voxel_grid() that takes the vertices of the outer mesh as an input. It fixes the padding count to 1, so setting the bounding box offset to 0 creates an adequate voxel grid.
 
-2. Compute the center of mass and mass of the object using igl::centroid()'s outputs of centroid and volume, as the assumption that input objects have uniform density ensures the equality of centroid and center of mass, and the density is available.
+2. Compute the center of mass and mass of the object using igl::centroid()'s outputs of centroid and volume, as the assumption that the object has uniform density ensures the equality of its centroid and center of mass, and its density is given.
  
-3. Compute the initial value of the energy concerned with inner carving, which we shall call the carving energy $C$, and it is the squared norm of the projection of the vector $d = \text{center of mass} - \text{contact}$ onto the subspace perpendicular to the direction of gravitational pull $g$:
+3. Compute the initial value of the energy concerned with inner carving, which we shall call the carving energy $E_{carving}$. Let $\bold{c}, k, g \in \mathbb{R^3}$ be the center of mass, contact point, and gravitational pull, respectively. $E_{carving}$ is the squared norm of the projection of $d = \bold{c} - k$ onto the gound, i.e. the subspace orthogonal to $g$:
 
-$$C = ||d - \frac{d \cdot g}{||g||^2}g||^2$$
+$$E_{carving} = ||d - \frac{d \cdot g}{||g||^2}g||^2$$
 
-4. Iteratively identify indicies of voxels in the voxel grid that are within the outer mesh by at least the minimum thickness. igl::signed_distance() can use fast winding number to check if a point is inside a mesh and calculate its distance from it. We only consider voxel centers that has a distance $s$ outputed by igl::signed_distance() s.t. $s \leq 0$ and $|s| \geq \text{minimum thickness}$.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+This is equivalent to equation (7) in the paper.
 
-5. Imagine a plane that intersects the contact point $c$ and is perpendicular to $d$. It cuts the object into two regions. We now sort all voxel centers $r$ (survived from step 4) in decreasing order of their signed distance $s$ from the plane, which is computed as:
+1. Iteratively identify indicies of voxels in the voxel grid that are within the outer mesh by at least the minimum thickness. igl::signed_distance() can use fast winding number [Barill et al., 2018] to check if a point is inside a mesh and calculate its distance from it. We only consider voxel centers that has a distance $s$ outputed by igl::signed_distance() s.t. $s \leq 0$ and $|s| \geq \text{minimum thickness}$.
+
+2. Imagine a plane that intersects the contact point $c$ and is perpendicular to $d$. It cuts the object into two regions. We now sort all voxel centers $r$ (survived from step 4) in decreasing order of their signed distance $s$ from the plane, which is computed as:
 
 $$s = (r - c) \cdot (d - \frac{d \cdot g}{||g||^2}g)$$
 
@@ -77,6 +79,7 @@ Notice that we visit all sorted voxels with non-negative signed distance implies
 8. Construct the boundary of the voxels "carved", which is the inner mesh. First construct a mask that indicates which voxels are "carved", for example, at the $i$-th position, a value of $-1$ and $1$ indicates the $i$-th voxel is "carved" and not "carved", respectively. Loop through each dimension of the voxel grid, whenever there is a sign change from one voxel to the next, construct two triangle faces that form the square face between them.
 
 ### Deformation
+Deforms the inner and outer mesh via linear blend skinning using bounded biharmonic weights [Jacobson et al., 2011].
 
 Please note that due to their shape and structure, the following matrices may not be applicable beyond this program.
 
@@ -161,7 +164,7 @@ c_{ij} = \begin{cases}
 $$
 
 #### Gradient Descent
-In Progress...
+**In Progress**
 
 ### My Implementation v.s. The Authors' Impelementation
 1. The authors' implementation has two balancing mode: 1) the standing mode and 2) the suspension mode, while mine only implemented the standing mode.
