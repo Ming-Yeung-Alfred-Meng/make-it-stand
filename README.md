@@ -162,7 +162,7 @@ c_{ij} = \begin{cases}
          \end{cases}
 $$
 
-  Formula of $c_{ij}$ adopted from [Finite Element Derivation of the Discrete Laplacian](https://github.com/alecjacobson/geometry-processing-smoothing#finite-element-derivation-of-the-discrete-laplacian). More detail about the Laplacian is also available from the link.
+  Formula of $c_{ij}$ adopted from [Finite Element Derivation of the Discrete Laplacian](https://github.com/alecjacobson/geometry-processing-smoothing#finite-element-derivation-of-the-discrete-laplacian). More detail about the Laplacian is also available on that page.
 
 #### Gradient Descent
 **In Progress**
