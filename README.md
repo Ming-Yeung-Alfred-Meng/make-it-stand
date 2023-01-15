@@ -144,7 +144,7 @@ M_{ij} = w_{ij}\begin{bmatrix}
 $$
 
 #### Laplacian
-$M_{Lap} \in \mathbf{R}^{3 |V| \times 3 |V|}$. Slice $M_{Lap}$ evenly into $|V|$ rows and $|V|$ columns of sub-matrices of size $3 \times 3$, and let $L_{ij}$ be the sub-matrix on the $i$-th row and $j$-th column. Assume that an (undirected) edge $\{v_{i}, v_{j}\}$ exists if and only if the two directed edges $(v_{i}, v_{j})$ and $(v_{i}, v_{j})$ exist. If $(v_{i}, v_{j})$ exists and $i \neq j$, let $\alpha_{ij}$ and $\beta_{ij}$ be the two angles opposite to this edge, for more details, please refer to [Finite Element Derivation of the Discrete Laplacian](https://github.com/alecjacobson/geometry-processing-smoothing#finite-element-derivation-of-the-discrete-laplacian), then:
+$M_{Lap} \in \mathbf{R}^{3 |V| \times 3 |V|}$. Slice $M_{Lap}$ evenly into $|V|$ rows and $|V|$ columns of sub-matrices of size $3 \times 3$, and let $L_{ij}$ be the sub-matrix on the $i$-th row and $j$-th column. Assume that an (undirected) edge $\{v_{i}, v_{j}\}$ exists if and only if the two directed edges $(v_{i}, v_{j})$ and $(v_{i}, v_{j})$ exist. If $(v_{i}, v_{j})$ exists and $i \neq j$, let $\alpha_{ij}$ and $\beta_{ij}$ be the two angles opposite to this edge:
 
 $$
 L_{ij} = \begin{bmatrix}
@@ -161,6 +161,8 @@ c_{ij} = \begin{cases}
          0                                & \text{otherwise}
          \end{cases}
 $$
+
+  Formula of $c_{ij}$ adopted from [Finite Element Derivation of the Discrete Laplacian](https://github.com/alecjacobson/geometry-processing-smoothing#finite-element-derivation-of-the-discrete-laplacian). More detail about the Laplacian is also available from the link.
 
 #### Gradient Descent
 **In Progress**
