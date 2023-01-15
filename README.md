@@ -1,8 +1,30 @@
 # An Implementation of ["Make It Stand" [Prévost et al., 2013]](papers/make-it-stand-siggraph-2013-prevost-et-al.pdf)
 
-## General Idea of the Algorithm
+## Table of Contents
+- [An Implementation of "Make It Stand" \[Prévost et al., 2013\]](#an-implementation-of-make-it-stand-prévost-et-al-2013)
+  - [Table of Contents](#table-of-contents)
+  - [High-Level Idea of the Algorithm](#high-level-idea-of-the-algorithm)
+  - [My Implementation](#my-implementation)
+    - [Inner Carving](#inner-carving)
+      - [Inputs](#inputs)
+      - [Settings](#settings)
+      - [Steps](#steps)
+      - [A Small Showcase](#a-small-showcase)
+    - [Deformation](#deformation)
+      - [Derivative of Mass w.r.t. Vertices $\\frac{\\partial m}{\\partial V}$](#derivative-of-mass-wrt-vertices-fracpartial-mpartial-v)
+      - [Derivative of Center of Mass w.r.t. Vertices $\\frac{\\partial CoM}{\\partial V}$](#derivative-of-center-of-mass-wrt-vertices-fracpartial-compartial-v)
+      - [Linear Blend Skinning Matrix $M$](#linear-blend-skinning-matrix-m)
+      - [Laplacian $M\_{Lap}$](#laplacian-m_lap)
+      - [Gradient Descent](#gradient-descent)
+    - [My Implementation v.s. The Authors' Impelementation](#my-implementation-vs-the-authors-impelementation)
+    - [Known Limitations of My Implementation](#known-limitations-of-my-implementation)
+    - [TODO](#todo)
 
-The algorithm shifts the center of mass of the object a given triangle mesh represents, so that it balances without easily toppling after fabrication through 3D printing. It uses two methods: 1) inner carving and 2) deformation. Inner carving creates a mesh to represent an empty region to be constructed inside the input mesh. From now on, we shall call them the inner and outer mesh, respectively. Essentailly, inner carving shift the center of mass by redistributing mass. Deformation shifts it by deforming the inner and outer mesh via linear blend skinning (LBS) using bounded biharmonic weights.
+## High-Level Idea of the Algorithm
+
+The algorithm shifts the center of mass of an object a given triangle mesh represents, so that it balances without easily toppling after fabrication through 3D printing. It has two stages: 1) inner carving and 2) deformation. Inner carving shifts the center of mass by constructing an empty region inside the object. The second stage deforms the object into a more balanced pose.
+
+Inner carving creates a inner mesh to represent an empty region to be constructed inside the object. Essentailly, inner carving shifts the center of mass by redistributing mass. Deformation shifts it by deforming the inner and outer mesh via linear blend skinning (LBS) using bounded biharmonic weights.
 
 ## My Implementation
 
