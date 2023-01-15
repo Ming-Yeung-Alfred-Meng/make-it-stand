@@ -117,14 +117,6 @@ $$
 $M$ is $3|V| \times 4|N|$. Slice $M$ evenly into $|V| \cdot |N|$ sub-matrices of size $3 \times 4$, and let $M_{ij}$ be the sub-matrix on the $i$-th row and $j$-th column. Let $w_{ij}$ be the weight of the $j$-th handle on the $i$-th vertex, then:
 
 $$
-M = \begin{bmatrix}
- & \vdots & \\
-\dots & M_{ij} & \dots\\
- & \vdots &
-\end{bmatrix}
-$$
-
-$$
 M_{ij} = w_{ij}\begin{bmatrix}
 1 & 0 & 0 & v_{i}^{x}\\
 0 & 1 & 0 & v_{i}^{x}\\
@@ -132,7 +124,24 @@ M_{ij} = w_{ij}\begin{bmatrix}
 \end{bmatrix}
 $$
 
-#### Laplacian
+#### Laplacian $M_{Lap}$
+$M_{Lap}$ is $3 |V| \times 3 |V|$. Slice $M_{Lap}$ evenly into $|V|^2$ sub-matrices of size $3 \times 3$, and let $L_{ij}$ be the sub-matrix on the $i$-th row and $j$-th column, then:
+
+$$
+L_{ij} = \begin{bmatrix}
+c_{ij} & 0 & 0\\
+0 & c_{ij} & 0\\
+0 & 0 & c_{ij}
+\end{bmatrix}
+$$
+
+$$
+c_{ij} = \begin{cases}
+         \frac{1}{2}  \cot{{\alpha}_{ij}} + \frac{1}{2}  \cot{{\beta}_{ij}}  & \text{if edge $ij$ exists} \\
+         - {\sum}_{j\ne i} L_{ij}                   & \text{if $i = j$} \\
+         0                                & \text{otherwise}
+         \end{cases}
+$$
 
 #### Gradient Descent
 In Progress...
@@ -149,3 +158,6 @@ In Progress...
 4. Deformation has yet to be completed, as calculating bounded biharmonic weights for the voxel grid has yet to be compeleted.
 5. The authors suggest that there should be no floating components, but my implementation results in them.
 6. update_center_of_mass() has a precision issue when compared against igl::centroid.
+
+### TODO
+- [ ] Check whether the positive or negative semi-definite version of the Laplacian is used.
