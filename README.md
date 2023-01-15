@@ -45,7 +45,7 @@ Creates an inner mesh to represent the boundary of the region to empty inside th
 
 2. Compute the center of mass and mass of the object using igl::centroid()'s outputs of centroid and volume, as the assumption that the object has uniform density ensures the equality of its centroid and center of mass, and its density is given.
  
-3. Compute the initial value of the energy concerned with inner carving, which we shall call the carving energy $E_{carving}$. Let $\bold{c}, k, g \in \mathbb{R^3}$ be the center of mass, contact point, and gravitational pull, respectively. $E_{carving}$ is the squared norm of the projection of $d = \bold{c} - k$ onto the gound, i.e. the subspace orthogonal to $g$:
+3. Compute the initial value of the energy concerned with inner carving, which we shall call the carving energy $E_{carving}$. Let $\mathbf{c}, k, g \in \mathbb{R^3}$ be the center of mass, contact point, and gravitational pull, respectively. $E_{carving}$ is the squared norm of the projection of $d = \mathbf{c} - k$ onto the gound, i.e. the subspace orthogonal to $g$:
 
 $$E_{carving} = ||d - \frac{d \cdot g}{||g||^2}g||^2$$
 
